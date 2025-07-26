@@ -1,0 +1,8 @@
+{
+    "format_version": "1.21.30",
+    "minecraft:texture_set": {
+        "color": "block_texture",
+        "metalness_emissive_roughness": "block_mer",
+        "normal": "block_normal"
+    }
+}

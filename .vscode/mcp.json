@@ -1,0 +1,19 @@
+{
+    "servers": {
+        "blockbench": {
+            "url": "http://localhost:5007/mcp"
+        },
+        "microsoft.docs.mcp": {
+            "type": "http",
+            "url": "https://learn.microsoft.com/api/mcp"
+        },
+        "filesystem": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                "${workspaceFolder}"
+            ]
+        }
+    }
+}
