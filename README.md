@@ -2,7 +2,7 @@
 
 This repository serves as a template or example of how to create a workspace which sets up the [Blockbench MCP server](https://github.com/jasonjgardner/blockbench-mcp-plugin/) for success.
 
-> __Note:__ In this example repository, the MCP port in Blockbench is set to __`3000`__ and the endpoint is __`bb-mcp`__. These are the default values, but can be changed within the plugin's settings on Blockbench.
+> __Note:__ In this example repository, the MCP port in Blockbench is set to __`3000`__ and the endpoint is __`bb-mcp`__. These are the default values, but can be changed within the plugin's settings in Blockbench.
 
 ## Start Blockbench
 

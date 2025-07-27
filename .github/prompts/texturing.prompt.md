@@ -1,11 +1,13 @@
 ---
 mode: agent
-tools: ['codebase', 'fetch', 'search', 'searchResults', 'get_file_contents', 'list_branches', 'list_tags', 'search_code', 'directory_tree', 'get_file_info', 'list_allowed_directories', 'list_directory', 'read_file', 'read_multiple_files', 'search_files', 'blockbench_add_texture_group', 'blockbench_apply_texture', 'blockbench_create_texture', 'blockbench_get_texture', 'blockbench_list_textures']
+tools: ['codebase', 'fetch', 'search', 'searchResults', 'get_file_contents', 'list_branches', 'list_tags', 'search_code', 'directory_tree', 'get_file_info', 'list_allowed_directories', 'list_directory', 'read_file', 'read_multiple_files', 'search_files', 'blockbench_add_texture_group', 'blockbench_apply_texture', 'blockbench_capture_app_screenshot', 'blockbench_capture_screenshot', 'blockbench_create_texture', 'blockbench_emulate_clicks', 'blockbench_fill_dialog', 'blockbench_get_texture', 'blockbench_list_outline', 'blockbench_list_textures', 'blockbench_set_camera_angle', 'blockbench_trigger_action']
 ---
 
 ## When creating textures in Blockbench, follow these guidelines to ensure consistency and quality:
 
 - Confirm with the user if they want to create a new texture, use a placeholder texture, a default texture, or an existing, local texture.
+- You can use the `blockbench_capture_app_screenshot` tool to take a screenshot of the Blockbench application, which can be useful for documentation or sharing purposes.
+- Use the `blockbench_capture_screenshot` tool to view the current model in Blockbench, which can help in visualizing how the texture will look on the model.
 
 ### Loading Existing/Local Textures
 

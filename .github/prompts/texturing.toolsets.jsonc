@@ -1,0 +1,13 @@
+{
+    "blockbench_texturing": {
+        "tools": [
+            "blockbench_create_texture",
+            "blockbench_apply_texture",
+            "blockbench_add_texture_group",
+            "blockbench_list_textures",
+            "blockbench_get_texture"
+        ],
+        "description": "Tools for creating and applying textures in Blockbench.",
+        "icon": "paintcan"
+    }
+}
