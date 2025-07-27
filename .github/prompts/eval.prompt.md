@@ -1,6 +1,5 @@
 ---
 mode: agent
-model: Claude Sonnet 4
 description: "Execute code directly in Blockbench to create, modify, or apply textures."
 tools: ['githubRepo', 'blockbench_capture_app_screenshot', 'blockbench_capture_screenshot', 'blockbench_from_geo_json', 'blockbench_risky_eval']
 ---

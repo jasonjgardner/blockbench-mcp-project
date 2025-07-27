@@ -1,11 +1,7 @@
 {
     "servers": {
         "blockbench": {
-            "url": "http://localhost:5007/mcp"
-        },
-        "microsoft.docs.mcp": {
-            "type": "http",
-            "url": "https://learn.microsoft.com/api/mcp"
+            "url": "http://localhost:5007/bb-mcp"
         },
         "filesystem": {
             "command": "npx",

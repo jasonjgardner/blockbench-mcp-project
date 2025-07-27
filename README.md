@@ -2,7 +2,7 @@
 
 This repository serves as a template or example of how to create a workspace which sets up the [Blockbench MCP server](https://github.com/jasonjgardner/blockbench-mcp-plugin/) for success.
 
-> Note: In this example repository, the MCP port in Blockbench is set to __`5007`__ and the endpoint is __`mcp`__. This is different than the default values.
+> __Note:__ In this example repository, the MCP port in Blockbench is set to __`3000`__ and the endpoint is __`bb-mcp`__. These are the default values, but can be changed within the plugin's settings on Blockbench.
 
 ## Start Blockbench
 
@@ -17,7 +17,7 @@ See the files in the [.vscode](./.vscode) and [.github](./.github) directories.
 ### Claude Code
 
 ```bash
-claude mcp add blockbench npx mcp-remote http://localhost:5007/mcp
+claude mcp add blockbench npx mcp-remote http://localhost:3000/bb-mcp
 ```
 
 ### Cline
@@ -31,7 +31,7 @@ __cline_mcp_settings.json__
       "args": [
         "-y",
         "mcp-remote",
-        "http://localhost:5007/mcp"
+        "http://localhost:3000/bb-mcp"
       ]
     }
   }

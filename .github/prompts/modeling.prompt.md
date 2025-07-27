@@ -16,3 +16,7 @@ When creating models in Blockbench, follow these guidelines to ensure consistenc
 - Stop between steps to confirm with the user before proceeding with significant changes.
 - Use `blockbench_capture_app_screenshot` to take screenshots of the Blockbench app for visual reference.
 - Do not bother with texturing or animations in this workflow; focus solely on the modeling aspect.
+
+## Adhere to these guidelines for the following prompt:
+
+${input:chatPrompt}
