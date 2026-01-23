@@ -2,14 +2,12 @@
     "chat.mcp.serverSampling": {
         "blockbench-mcp-project/.vscode/mcp.json: blockbench": {
             "allowedModels": [
-                "github.copilot-chat/claude-opus-4",
-                "github.copilot-chat/claude-3.5-sonnet",
-                "github.copilot-chat/claude-3.7-sonnet",
-                "github.copilot-chat/claude-sonnet-4",
-                "github.copilot-chat/gemini-2.5-pro",
-                "github.copilot-chat/gpt-4.1",
-                "github.copilot-chat/gpt-4o",
-                "github.copilot-chat/o3"
+                "copilot/auto",
+                "copilot/claude-opus-4",
+                "copilot/claude-3.7-sonnet",
+                "copilot/claude-sonnet-4",
+                "copilot/gemini-2.5-pro",
+                "copilot/gpt-5"
             ]
         }
     },
