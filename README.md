@@ -37,3 +37,14 @@ __cline_mcp_settings.json__
   }
 }
 ```
+
+## Skills
+
+```bash
+npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-animation
+npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-modeling
+npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-texturing
+npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-pbr-materials
+npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-mcp-overview
+npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-hytale
+```
