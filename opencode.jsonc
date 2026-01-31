@@ -1,0 +1,10 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "mcp": {
+        "blockbench": {
+            "url": "http://localhost:3000/bb-mcp",
+            "type": "remote",
+            "enabled": true
+        }
+    }
+}
