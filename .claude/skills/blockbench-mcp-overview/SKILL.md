@@ -21,9 +21,7 @@ An MCP server that exposes Blockbench functionality to AI agents through:
 | Animation | 7 | Keyframes, rigs, curves, timeline |
 | Camera | 3 | Screenshots, camera control |
 | Cubes | 2 | Cube creation and modification |
-| Elements | 8 | Groups, outliner, duplication, selection/filtering |
-| Export | 2 | Compile and save models via codecs |
-| History | 4 | Undo, redo, checkpoint, inspect stack |
+| Elements | 5 | Groups, outliner, duplication |
 | Import | 1 | GeoJSON import |
 | Mesh | 11 | Spheres, cylinders, extrusion, vertices |
 | Paint | 12 | Brushes, fill, shapes, layers |
@@ -119,14 +117,10 @@ get_texture: texture="block"
 ### Information Gathering
 
 ```
-list_outline                   # View model hierarchy
-list_textures                  # View textures
-list_materials                 # View PBR materials
-list_export_formats            # View available export codecs
-get_undo_stack                 # Inspect undo history
-find_elements_by_criteria      # Search model by name, type, size, parent
-filter_by_material             # Find elements referencing a texture
-hytale_get_format_info         # View Hytale format (if active)
+list_outline            # View model hierarchy
+list_textures           # View textures
+list_materials          # View PBR materials
+hytale_get_format_info  # View Hytale format (if active)
 ```
 
 ### Modification Pattern
@@ -150,48 +144,6 @@ capture_app_screenshot  # Entire Blockbench window
 risky_eval: code="Cube.all.length"  # Query Blockbench directly
 trigger_action: action="undo"       # Trigger Blockbench actions
 ```
-
-### Undo & Checkpoints
-
-Use history tools to branch, recover, and mark progress in multi-step agent workflows. Prefer `undo`/`redo` over `trigger_action: action="undo"`.
-
-```
-# Mark a state before risky work
-save_checkpoint: name="before_arm_rework"
-
-# Make changes...
-modify_cube: id="arm_left", rotation=[0, 45, 0]
-duplicate_element: id="arm_left", newName="arm_right", offset=[-8, 0, 0]
-
-# Didn't like the result - roll back 2 steps
-undo: steps=2
-
-# Inspect what's in the stack
-get_undo_stack: limit=10
-# → { index, total, can_undo, can_redo, entries: [...] }
-```
-
-The checkpoint appears in `get_undo_stack` as `[checkpoint] before_arm_rework`, so an agent can count entries between the current index and the checkpoint to know how many times to call `undo`.
-
-### Export
-
-Export the current project through any registered Blockbench codec. Content is returned in the response; optionally written to disk.
-
-```
-# Discover codecs (filter to current format's compatible codecs)
-list_export_formats: only_current_format=true
-
-# Compile and return content (default path: none, content returned)
-export_model: codec_id="obj"
-
-# Compile, write to disk (requires Blockbench v5.0+ fs permission prompt)
-export_model: codec_id="gltf", path="C:/models/character.gltf"
-
-# Large files: skip content in response, only write
-export_model: codec_id="project", path="C:/models/save.bbmodel", max_content_length=0
-```
-
-Content is truncated at `max_content_length` characters (default 100,000) to protect the MCP context window. Use `byte_length` in the response to see the real size.
 
 ## Domain Integration
 
@@ -264,8 +216,6 @@ Tools throw descriptive errors with suggestions:
 4. **Name elements**: Use descriptive names for easy reference
 5. **Validate**: Use `hytale_validate_model` for Hytale projects
 6. **Screenshot**: Capture progress with `capture_screenshot`
-7. **Checkpoint before risk**: Call `save_checkpoint` before experimental edits so `undo` can return cleanly
-8. **Filter before iterate**: Prefer `find_elements_by_criteria` or `filter_by_material` over loading the full outline and filtering client-side
 
 ## Tool Status
 

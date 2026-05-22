@@ -38,9 +38,6 @@ Build 3D models using cubes and meshes in Blockbench.
 | `duplicate_element` | Copy elements |
 | `rename_element` | Rename elements |
 | `remove_element` | Delete elements |
-| `find_elements_by_criteria` | Query elements by name pattern, type, parent, size |
-| `select_all_of_type` | Bulk-select cubes, meshes, or groups |
-| `filter_by_material` | Find elements referencing a texture |
 
 ## Cube Modeling
 
@@ -167,48 +164,6 @@ duplicate_element: id="arm_left", newName="arm_right", offset=[-8, 0, 0]
 list_outline  # Returns all groups and elements
 ```
 
-## Selection & Filtering
-
-Query the model without loading the full outline. These tools are read-only except `select_all_of_type`.
-
-### Find Elements by Criteria
-
-Combine any of: regex name match, substring match, type, parent-group scope, cube size bounds, selection scope.
-
-```
-# All cubes under "body" named like "arm_*"
-find_elements_by_criteria: type="cube", parent_group="body", name_pattern="^arm_"
-
-# Small cubes (under 4 units on any axis) in the currently selected elements
-find_elements_by_criteria: selected_only=true, max_size=[4, 4, 4]
-
-# Groups whose name contains "hand" (case-insensitive)
-find_elements_by_criteria: type="group", name_contains="hand"
-```
-
-Returns `{ count, truncated, matches: [{ uuid, name, type, parent }] }`.
-
-### Select All of Type
-
-```
-# Replace selection with every cube in the project
-select_all_of_type: type="cube"
-
-# Add all meshes under "head" to the current selection
-select_all_of_type: type="mesh", parent_group="head", add_to_selection=true
-```
-
-### Filter by Material
-
-Find every cube or mesh that references a specific texture. For cubes, the exact face keys are returned.
-
-```
-filter_by_material: texture="skin"
-# → { texture, count, matches: [{ uuid, name, type: "cube", faces: ["north", "up"] }] }
-```
-
-Useful when refactoring textures: find all users before swapping or retiring a texture.
-
 ## Common Patterns
 
 ### Minecraft Character
@@ -245,10 +200,8 @@ move_mesh_vertices: offset=[0, 4, 0], vertices=["top_verts"]
 ## Tips
 
 - Use `list_outline` to see current model structure
-- Use `find_elements_by_criteria` for targeted queries instead of filtering `list_outline` results client-side
 - Set group origins at joint/pivot points for animation
 - Use `faces=true` for auto UV mapping on cubes
 - Create bone hierarchy before adding geometry
 - Use `duplicate_element` with offset for symmetrical parts
 - Mesh editing is more flexible but cubes are simpler for Minecraft-style models
-- Before reworking a model, call `save_checkpoint` (history skill) so you can roll back with `undo`
