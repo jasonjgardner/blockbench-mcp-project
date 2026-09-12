@@ -18,6 +18,8 @@ An MCP server that exposes Blockbench functionality to AI agents through:
 
 | Domain | Tools | Purpose |
 |--------|-------|---------|
+| Discovery | `get_capabilities` | Host/plugin versions, active project, registered formats/features, enabled tools |
+| Inspection | `get_mesh_info` | Paginated runtime geometry keys, local positions/normals, selection, texture references, optional UVs |
 | Animation | 7 | Keyframes, rigs, curves, timeline |
 | Camera | 3 | Screenshots, camera control |
 | Cubes | 2 | Cube creation and modification |
@@ -57,10 +59,20 @@ An MCP server that exposes Blockbench functionality to AI agents through:
 
 ## Quick Start Workflows
 
+### Discover Formats and Tools
+
+```
+get_capabilities: include_tools=true
+# → {blockbench, plugin, project, format, formats, tools, notes}
+```
+
+`project` is `null` when no project is open. Pick exact IDs from `formats`; `get_capabilities: format_id="free"` inspects Generic Model without switching projects. Mesh creation requires `format.features.meshes=true`. A display name is not a format ID: use `free`, not `generic`, for the built-in Generic Model. Cube-oriented `modded_entity` and `optifine_entity` do not imply mesh support. Detailed feature values can be `null` (unknown); an enabled tool can still need a compatible format, mode, and selection.
+
 ### Create a Simple Model
 
 ```
-# 1. Create project
+# 1. Discover first; use "bedrock" only if it is registered for the requested target
+get_capabilities
 create_project: name="my_model", format="bedrock"
 
 # 2. Create texture
@@ -104,7 +116,7 @@ animation_timeline: action="play"
 
 ```
 # 1. Create texture
-create_texture: name="block", width=16, height=16, fill_color="#8B4513"
+create_texture: name="block", width=16, height=16, fill_color="#8B4513", layer_name="base"
 
 # 2. Add details
 draw_shape_tool: shape="rectangle", start={x: 2, y: 2}, end={x: 14, y: 14}, color="#A0522D"
@@ -120,6 +132,8 @@ get_texture: texture="block"
 
 ```
 list_outline                   # View model hierarchy
+get_capabilities               # Discover active project, format features, host, and tools
+get_mesh_info: mesh_id="panel", include_uv=true  # Inspect a specific mesh without selecting it
 list_textures                  # View textures
 list_materials                 # View PBR materials
 list_export_formats            # View available export codecs
@@ -136,6 +150,8 @@ Most modification tools follow:
 2. Specify changes
 3. Changes are recorded for undo
 
+`place_mesh` returns JSON `{meshes: [{name, uuid, vertex_keys, face_keys}]}`. Bind subsequent mesh IDs to the returned UUID and component IDs to these arrays, which follow input order. For primitives and existing meshes, read `get_mesh_info`: vertices appear in `vertices.items` as `{key, position, selected}`, faces in `faces.items` as `{key, vertices, normal, selected, texture, uv?}`. Each list is independently paginated by `next_offset` (default 100, maximum 500 items). Read to `null` before editing; reinspect after topology changes. Vertex coordinates and normals are mesh-local. See [modeling](../blockbench-modeling/SKILL.md) and [texturing](../blockbench-texturing/SKILL.md) for followable examples that bind returned keys.
+
 ### Screenshot Workflow
 
 ```
@@ -148,8 +164,10 @@ capture_app_screenshot  # Entire Blockbench window
 
 ```
 risky_eval: code="Cube.all.length"  # Query Blockbench directly
-trigger_action: action="undo"       # Trigger Blockbench actions
+undo: steps=1                      # Use dedicated history tools for undo/redo
 ```
+
+`risky_eval` does not open an undo transaction automatically. A script that directly mutates the project must manage the appropriate host undo aspects and failure handling itself; prefer dedicated tools for supported edits. A checkpoint marks history but does not make unrecorded script changes undoable.
 
 ### Undo & Checkpoints
 
@@ -232,21 +250,17 @@ manage_keyframes: bone_name="arm", channel="rotation",
 ```
 # Create textures for each channel
 create_texture: name="stone_color", width=16, height=16
-create_texture: name="stone_normal", width=16, height=16, fill_color="#8080FF"
-create_texture: name="stone_mer", width=16, height=16, fill_color=[0, 0, 200, 255]
+create_texture: name="stone_normal", width=16, height=16, fill_color="#8080FF", layer_name="base"
 
-# Create material
-create_pbr_material: name="stone", textures={
-  color: "stone_color",
-  normal: "stone_normal",
-  mer: "stone_mer"
-}
+# Create material with uniform MER [metalness, emissive, roughness] in 0–255 units
+create_pbr_material: name="stone", color_texture="stone_color",
+  normal_texture="stone_normal", mer_value=[0, 0, 230]
 
-# Configure
-configure_material: material_id="stone", config={
-  metalness_emissive_roughness: {metalness: 0, emissive: 0, roughness: 0.9}
-}
+# Inspect the returned material.uuid; use it for later material arguments
+get_material_info: material="stone"
 ```
+
+See [PBR materials](../blockbench-pbr-materials/SKILL.md) for channel replacement, uniform values, and the color-texture save-path requirement. Normal and height maps are alternatives, and a MER texture requires a color texture for the host preview.
 
 ## Error Handling
 

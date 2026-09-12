@@ -18,17 +18,18 @@ Build 3D models using cubes and meshes in Blockbench.
 ### Mesh Tools
 | Tool | Purpose |
 |------|---------|
-| `place_mesh` | Create mesh with vertices |
+| `place_mesh` | Create meshes with indexed faces; returns UUIDs and runtime geometry keys |
+| `get_mesh_info` | Inspect mesh-local positions, faces, normals, selection, textures, and optional UVs |
 | `create_sphere` | Create sphere mesh |
 | `create_cylinder` | Create cylinder mesh |
-| `extrude_mesh` | Extrude faces/edges/vertices |
-| `subdivide_mesh` | Add geometry detail |
+| `extrude_mesh` | Extrude selected face regions; edge/vertex modes are unsupported |
+| `subdivide_mesh` | Subdivide selected triangles/quads into `cuts + 1` segments per edge |
 | `select_mesh_elements` | Select vertices/edges/faces |
 | `move_mesh_vertices` | Move selected vertices |
 | `delete_mesh_elements` | Remove geometry |
 | `merge_mesh_vertices` | Weld nearby vertices |
 | `create_mesh_face` | Create face from vertices |
-| `knife_tool` | Cut edges into faces |
+| `knife_tool` | Interactive point-list operation is unsupported through MCP |
 
 ### Element Tools
 | Tool | Purpose |
@@ -79,6 +80,48 @@ place_cube: elements=[{name: "block", from: [0,0,0], to: [16,16,16]}],
 
 ## Mesh Modeling
 
+Check `get_capabilities` before creating meshes. Use a registered format with `format.features.meshes=true`, normally `free` (Generic Model).
+
+### Create a Mesh and Retain Its IDs
+
+The JavaScript examples below are client orchestration pseudocode: `call(name, args)` invokes that MCP tool and checks for `isError`. For JSON results, it returns `structuredContent` or the decoded JSON text; for plain-text results, it returns the text unchanged. It is not code for `risky_eval`. Variables such as `panel.uuid` and `panel.face_keys[0]` must be replaced with their returned values in actual tool arguments, never sent as literal strings.
+
+```js
+const placed = await call("place_mesh", {
+  elements: [{
+    name: "panel",
+    vertices: [[0, 0, 0], [4, 0, 0], [4, 4, 0], [0, 4, 0]],
+    faces: [[0, 1, 2, 3]],
+  }],
+});
+const panel = placed.meshes[0];
+// panel: {name, uuid, vertex_keys: [...], face_keys: [...]}
+```
+
+Input faces use zero-based vertex **indices**. Returned `vertex_keys` and `face_keys` follow input order and hold the actual runtime keys. Later selection, face creation, and UV tools need those keys. A mesh name or UUID identifies the mesh, not its vertices or faces. Retain the UUID to avoid ambiguous names. After topology edits or undo/redo, inspect again before reusing component keys.
+
+### Inspect Geometry and Read Every Page
+
+For primitives or existing meshes, obtain keys with `get_mesh_info`. Vertex items contain `{key, position, selected}`; face items contain `{key, vertices, normal, selected, texture}`. Positions, bounds, and normals are **mesh-local**, before origin, rotation, and parent transforms.
+
+```js
+async function readMeshPages(meshId, part, offset = 0) {
+  // part is "vertices" or "faces". Read one list independently.
+  const info = await call("get_mesh_info", {
+    mesh_id: meshId,
+    include_vertices: part === "vertices",
+    include_faces: part === "faces",
+    [part === "vertices" ? "vertex_offset" : "face_offset"]: offset,
+    limit: 500,
+  });
+  const page = info[part];
+  if (page.next_offset === null) return page.items;
+  return page.items.concat(await readMeshPages(meshId, part, page.next_offset));
+}
+```
+
+Each list has its own `next_offset`; `null` means complete. The default limit is 100, maximum 500 per list. Finish paging before mutating geometry because keys are sorted and edits can invalidate offsets. Inspection is read-only and does not select components.
+
 ### Create Sphere
 
 ```
@@ -105,38 +148,43 @@ create_cylinder: elements=[{
 
 ### Extrude Face
 
-```
-select_mesh_elements: mesh_id="pillar", mode="face", elements=["top_face"]
-extrude_mesh: mesh_id="pillar", mode="faces", distance=4
+For the unrotated, capped cylinder created above, select all cap triangles facing local +Y:
+
+```js
+const pillarFaces = await readMeshPages("pillar", "faces");
+const capKeys = pillarFaces.filter(face => face.normal[1] > 0.99).map(face => face.key);
+if (capKeys.length === 0) throw new Error("No upward cap faces found; inspect the mesh.");
+await call("select_mesh_elements", {mesh_id: "pillar", mode: "face", elements: capKeys});
+await call("extrude_mesh", {mesh_id: "pillar", mode: "faces", distance: 4});
 ```
 
 ### Subdivide for Detail
 
 ```
-subdivide_mesh: mesh_id="sphere", cuts=2
+select_mesh_elements: mesh_id="ball", mode="face"  # Select all faces explicitly
+subdivide_mesh: mesh_id="ball", cuts=2
 ```
 
 ### Move Vertices
 
-```
-select_mesh_elements: mesh_id="mesh1", mode="vertex", elements=["v1", "v2"]
-move_mesh_vertices: offset=[0, 2, 0]
+Continue from the `panel` creation example, before changing its topology:
+
+```js
+await call("select_mesh_elements", {
+  mesh_id: panel.uuid, mode: "vertex", elements: panel.vertex_keys.slice(2, 4),
+});
+await call("move_mesh_vertices", {mesh_id: panel.uuid, offset: [0, 2, 0]});
 ```
 
 ### Merge Close Vertices
 
 ```
-merge_mesh_vertices: mesh_id="mesh1", threshold=0.1
+merge_mesh_vertices: mesh_id="panel", threshold=0.1
 ```
 
 ### Knife Cut
 
-```
-knife_tool: mesh_id="cube_mesh", points=[
-  {position: [0, 8, -4]},
-  {position: [0, 8, 4]}
-]
-```
+The host Knife tool depends on interactive pointer state, so `knife_tool` returns an unsupported-operation error for point lists. For a scripted cut, inspect with `get_mesh_info`, construct the intended replacement vertices/faces with `place_mesh`, verify them, then replace the original geometry within the user's requested scope. Use Blockbench's interactive Knife tool when the user prefers to cut manually.
 
 ## Organization
 
@@ -234,13 +282,18 @@ place_cube: elements=[{name: "leg", from: [-2, 0, -2], to: [2, 12, 2]}], group="
 
 ### Smooth Organic Shape
 
+```js
+await call("create_sphere", {
+  elements: [{name: "base", position: [0, 8, 0], diameter: 16, sides: 16}],
+});
+await call("select_mesh_elements", {mesh_id: "base", mode: "face"});
+await call("subdivide_mesh", {mesh_id: "base", cuts: 1});
+const vertices = await readMeshPages("base", "vertices");
+const upperKeys = vertices.filter(vertex => vertex.position[1] > 0).map(vertex => vertex.key);
+await call("move_mesh_vertices", {mesh_id: "base", offset: [0, 4, 0], vertices: upperKeys});
 ```
-create_sphere: elements=[{name: "base", position: [0, 8, 0], diameter: 16, sides: 16}]
-subdivide_mesh: mesh_id="base", cuts=1
-# Select and move vertices to shape
-select_mesh_elements: mesh_id="base", mode="vertex"
-move_mesh_vertices: offset=[0, 4, 0], vertices=["top_verts"]
-```
+
+The predicate uses local Y, so `> 0` selects the upper half of this sphere even though its origin is at world Y=8. Use a predicate appropriate to the inspected geometry for other shapes.
 
 ## Tips
 

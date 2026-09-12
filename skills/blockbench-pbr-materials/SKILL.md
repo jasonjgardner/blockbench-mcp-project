@@ -1,249 +1,137 @@
 ---
 name: blockbench-pbr-materials
-description: Create and manage PBR (Physically Based Rendering) materials in Blockbench using MCP tools. Use when working with texture_set.json files, creating normal/height/MER maps, configuring material properties for Minecraft Bedrock RTX, or setting up multi-channel texture workflows.
+description: Create and manage PBR materials in Blockbench using MCP tools. Use for Bedrock texture_set.json import/export, normal or height maps, packed MER textures, material channel replacement, and uniform material properties.
 ---
 
 # Blockbench PBR Materials
 
-Create and manage PBR materials for Minecraft Bedrock RTX and other PBR workflows.
+Use `get_capabilities` to inspect the active project and registered format features, including `pbr`. Check `list_textures` and `list_materials` before assigning existing assets. Texture and material references accept names or UUIDs; prefer returned UUIDs when names overlap.
 
-## Available Tools
+## Tools and Parameter Names
 
-| Tool | Purpose |
-|------|---------|
-| `create_pbr_material` | Create new PBR material with texture channels |
-| `configure_material` | Configure material properties |
-| `list_materials` | List all PBR materials |
-| `get_material_info` | Get detailed material info |
-| `import_texture_set` | Import texture_set.json file |
-| `assign_texture_channel` | Assign texture to PBR channel |
-| `save_material_config` | Export texture_set.json |
+| Tool | Parameters used in this workflow |
+|------|---------------------------------|
+| `create_pbr_material` | `name`, `color_texture`, `normal_texture` or `height_texture`, `mer_texture`, `color_value`, `mer_value`, `subsurface_value` |
+| `configure_material` | `material` plus the same channel/value fields; a texture field set to `"none"` clears that channel |
+| `assign_texture_channel` | `material`, `texture`, `channel` |
+| `list_materials` | No parameters |
+| `get_material_info` | `material` |
+| `import_texture_set` | `path` ending in `.texture_set.json` |
+| `save_material_config` | `material`; output path is derived from the saved color texture |
 
-## PBR Channels
+These are flat tool arguments. Do not wrap channels in `textures` or settings in `config`, and do not use `material_id`, `texture_id`, or `output_path` for these PBR tools.
 
-| Channel | Description | Format |
-|---------|-------------|--------|
-| `color` | Base color/albedo | RGB texture |
-| `normal` | Normal map for surface detail | RGB (tangent space) |
-| `height` | Heightmap for parallax/displacement | Grayscale |
-| `mer` | Metalness/Emissive/Roughness packed | R=Metal, G=Emissive, B=Roughness |
+## Channel and Value Rules
 
-## Quick Start
+| Channel | Texture data | Uniform alternative |
+|---------|--------------|---------------------|
+| `color` | Base color/albedo RGBA | `color_value: [R, G, B, A]`, each 0–255 |
+| `normal` | Tangent-space RGB; neutral normal is `#8080FF` | None |
+| `height` | Grayscale height, dark low to light high | None |
+| `mer` | R=metalness, G=emissive, B=roughness | `mer_value: [M, E, R]`, each 0–255 |
 
-### Create Basic PBR Material
+- Use normal **or** height in one material. To change between them, remove the old channel in the same `configure_material` call.
+- Use a separate texture for each assigned channel. Replacing a channel detaches its old texture from the material; it does not delete the image.
+- Uniform values require no texture assigned to that channel; supplying them while a map remains assigned returns an error. Remove a MER map with `mer_texture="none"` when switching to `mer_value`.
+- A MER texture requires a color texture in the current Blockbench preview. For uniform color, use uniform MER too.
+- Moving a texture to another material changes its group. When moving a color texture away, clear or move its source material's MER texture first so the source remains valid.
+- `subsurface_value` is one number from 0–255; it is not an RGB object. Game/export support depends on the target.
 
-```
-create_pbr_material: name="stone_pbr", textures={
-  color: "stone_color",
-  normal: "stone_normal"
-}
-```
-
-### Create Full Material
+## Create a Material
 
 ```
-create_pbr_material: name="gold_block", textures={
-  color: "gold_color",
-  normal: "gold_normal",
-  height: "gold_height",
-  mer: "gold_mer"
-}
+create_texture: name="stone_color", width=16, height=16,
+  fill_color="#808080", layer_name="base"
+create_texture: name="stone_normal", width=16, height=16,
+  fill_color="#8080FF", layer_name="base"
+
+create_pbr_material: name="stone", color_texture="stone_color",
+  normal_texture="stone_normal", mer_value=[0, 0, 230]
+# → {success, material: {name, uuid, is_material, channels}}
+
+get_material_info: material="stone"
 ```
 
-## Material Configuration
+`layer_name` is required whenever `create_texture` supplies `fill_color`. Retain `material.uuid` from the create response and use its value in subsequent `material` arguments. The names above work when unique. This example uses a matte nonmetal MER value; 230/255 is approximately 90% roughness.
 
-### Set Material Properties
+## Edit and Replace Channels
 
-```
-configure_material: material_id="stone_pbr", config={
-  metalness_emissive_roughness: {
-    metalness: 0.0,
-    emissive: 0.0,
-    roughness: 0.8
-  }
-}
-```
-
-### Metallic Material
+Replace a normal map with another already-created normal texture:
 
 ```
-configure_material: material_id="gold_block", config={
-  metalness_emissive_roughness: {
-    metalness: 1.0,
-    emissive: 0.0,
-    roughness: 0.3
-  }
-}
+assign_texture_channel: material="stone", texture="stone_normal_v2", channel="normal"
 ```
 
-### Emissive Material (Glowing)
+Switch from normal to an already-created height map in one call:
 
 ```
-configure_material: material_id="glowstone", config={
-  metalness_emissive_roughness: {
-    metalness: 0.0,
-    emissive: 1.0,
-    roughness: 0.9
-  }
-}
+configure_material: material="stone", normal_texture="none", height_texture="stone_height"
 ```
 
-## Texture Assignment
+The referenced replacement texture must exist; discover its UUID with `list_textures`. Use `get_material_info` afterward to verify the new assignment. These project edits are recorded for the dedicated `undo` / `redo` tools; undoing a channel replacement restores both the replaced and incoming texture's assignments.
 
-### Assign Individual Channel
+## Uniform Properties
 
-```
-assign_texture_channel: material_id="stone_pbr", channel="height",
-  texture_id="stone_heightmap"
-```
-
-### Replace Channel
+With an existing material named `stone`, clear any MER map before setting uniform values:
 
 ```
-assign_texture_channel: material_id="stone_pbr", channel="normal",
-  texture_id="stone_normal_v2"
+configure_material: material="stone", mer_texture="none", mer_value=[0, 0, 204]
 ```
 
-## Import/Export
+| Appearance | `mer_value` example |
+|------------|---------------------|
+| Matte stone | `[0, 0, 230]` |
+| Smooth metal | `[255, 0, 64]` |
+| Smooth dielectric | `[0, 0, 13]` |
+| Emissive nonmetal | `[0, 255, 204]` |
 
-### Import texture_set.json
+To use uniform color, clear both the color and MER textures in the same call:
 
 ```
-import_texture_set: file_path="C:/packs/stone_texture_set.json"
+configure_material: material="stone", color_texture="none", mer_texture="none",
+  color_value=[128, 128, 128, 255], mer_value=[0, 0, 204]
 ```
 
-### Export texture_set.json
+## Paint and Assign a MER Map
+
+Create a MER texture and assign it together with the material's color texture:
 
 ```
-save_material_config: material_id="stone_pbr",
-  output_path="C:/packs/textures/stone_texture_set.json"
+create_texture: name="stone_mer", width=16, height=16,
+  fill_color=[0, 0, 204, 255], layer_name="base"
+
+# Metallic spot, retaining roughness at 204 and emission at zero
+paint_with_brush: texture_id="stone_mer", coordinates=[{x: 8, y: 8}],
+  brush_settings={color: "#FF00CC", size: 4}
+
+# Emissive spot, retaining roughness at 204 and metalness at zero
+paint_with_brush: texture_id="stone_mer", coordinates=[{x: 4, y: 4}],
+  brush_settings={color: "#00FFCC", size: 2}
+
+configure_material: material="stone", color_texture="stone_color", mer_texture="stone_mer"
+get_material_info: material="stone"
 ```
 
-## Querying Materials
+A brush color writes all RGB channels. Encode the properties you intend to preserve in that color instead of assuming a red or green brush isolates one channel.
 
-### List All Materials
+## Inspect, Import, and Export
 
 ```
 list_materials
-# Returns: [{uuid, name, textureCount, hasColor, hasNormal, hasHeight, hasMER}]
+# → [{name, uuid, channels: {color, normal, height, mer}, config}]
+
+get_material_info: material="stone"
+# → {name, uuid, is_material, textures, config, texture_set_json}
+
+import_texture_set: path="C:/packs/textures/stone.texture_set.json"
 ```
 
-### Get Material Details
+Import needs a readable file and its referenced images on the Blockbench desktop host. Inspect the imported material before editing it.
+
+For export, first save the color image through Blockbench so it has a valid file path. `get_material_info` exposes `config.file_path` and a `texture_set_json` preview. The save tool derives the `.texture_set.json` destination from the color image; it does not take an arbitrary output path:
 
 ```
-get_material_info: material_id="stone_pbr"
-# Returns full channel assignments and config
+save_material_config: material="stone"
 ```
 
-## MER Texture Format
-
-The MER channel packs three properties into RGB:
-
-- **R (Red)**: Metalness (0=dielectric, 1=metal)
-- **G (Green)**: Emissive intensity (0=none, 1=full glow)
-- **B (Blue)**: Roughness (0=smooth/shiny, 1=rough/matte)
-
-### Creating MER Texture
-
-```
-# Create blank MER texture
-create_texture: name="block_mer", width=16, height=16,
-  fill_color=[0, 0, 204, 255]  # Non-metal, no glow, 80% rough
-
-# Paint metallic areas (R channel)
-paint_with_brush: texture_id="block_mer", coordinates=[{x: 8, y: 8}],
-  brush_settings={color: "#FF0000", size: 4}  # Metallic spot
-
-# Paint glowing areas (G channel)
-paint_with_brush: texture_id="block_mer", coordinates=[{x: 4, y: 4}],
-  brush_settings={color: "#00FF00", size: 2, blend_mode: "add"}
-```
-
-## Common Material Types
-
-### Stone/Rock
-
-```
-create_pbr_material: name="stone", textures={color: "stone_color", normal: "stone_normal"}
-configure_material: material_id="stone", config={
-  metalness_emissive_roughness: {metalness: 0, emissive: 0, roughness: 0.9}
-}
-```
-
-### Metal (Gold, Iron)
-
-```
-create_pbr_material: name="gold", textures={color: "gold_color", normal: "gold_normal", mer: "gold_mer"}
-configure_material: material_id="gold", config={
-  metalness_emissive_roughness: {metalness: 1.0, emissive: 0, roughness: 0.25}
-}
-```
-
-### Glass/Crystal
-
-```
-create_pbr_material: name="glass", textures={color: "glass_color"}
-configure_material: material_id="glass", config={
-  metalness_emissive_roughness: {metalness: 0, emissive: 0, roughness: 0.05}
-}
-```
-
-### Glowing Block
-
-```
-create_pbr_material: name="lamp", textures={color: "lamp_color", mer: "lamp_mer"}
-configure_material: material_id="lamp", config={
-  metalness_emissive_roughness: {metalness: 0, emissive: 1.0, roughness: 0.8}
-}
-```
-
-### Subsurface Scattering (Bedrock 1.21.30+)
-
-```
-configure_material: material_id="leaves", config={
-  subsurface_scattering: {
-    red: 0.3,
-    green: 0.8,
-    blue: 0.2
-  }
-}
-```
-
-## Workflow Example
-
-### Complete Block Material
-
-```
-# 1. Create base textures
-create_texture: name="brick_color", width=16, height=16
-create_texture: name="brick_normal", width=16, height=16, fill_color="#8080FF"
-create_texture: name="brick_mer", width=16, height=16, fill_color=[0, 0, 200, 255]
-
-# 2. Paint textures (color, normal, mer)
-paint_with_brush: texture_id="brick_color", ...
-paint_with_brush: texture_id="brick_normal", ...
-
-# 3. Create material
-create_pbr_material: name="brick", textures={
-  color: "brick_color",
-  normal: "brick_normal",
-  mer: "brick_mer"
-}
-
-# 4. Configure
-configure_material: material_id="brick", config={
-  metalness_emissive_roughness: {metalness: 0, emissive: 0, roughness: 0.85}
-}
-
-# 5. Export
-save_material_config: material_id="brick", output_path="./textures/brick_texture_set.json"
-```
-
-## Tips
-
-- Normal maps use tangent space (blue-ish color, RGB where B is up)
-- Height maps are grayscale (white=high, black=low)
-- MER channels can be painted separately or as a combined texture
-- Use `list_materials` to see what's available
-- Always test in-game with RTX enabled for accurate preview
-- Roughness 0 = mirror-like, Roughness 1 = completely diffuse
+New textures created only in memory do not have a save path. When the user only needs the JSON content, use the `get_material_info` preview. Saving a material config writes a disk file and is separate from undoable project edits. Verify the appearance in the intended game/rendering environment when that is part of the requested deliverable.

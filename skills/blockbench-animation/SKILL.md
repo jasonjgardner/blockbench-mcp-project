@@ -21,14 +21,26 @@ Create animations for 3D models using Blockbench MCP tools.
 
 ## Quick Start
 
-### Create a Simple Animation
+### Create a Continuous Rotation
+
+Check `get_capabilities` for `format.features.animation_mode=true` and use `list_outline` to identify the existing bone/group. Animate a shared parent group to rotate a multi-mesh object together; place that group's pivot at the intended center before adding keyframes. Preserve the user's existing project and geometry.
+
+The examples use tool-call pseudocode. Bind `spin.uuid` to the UUID returned by `create_animation`; do not invent animation IDs or assume a name prefix. `bones` is required, including when creating an empty animation for subsequent keyframe calls.
 
 ```
-1. create_animation: name="walk", animation_length=1.0, loop=true
-2. manage_keyframes: bone_name="leg_left", channel="rotation",
-   keyframes=[{time: 0, values: [30, 0, 0]}, {time: 0.5, values: [-30, 0, 0]}]
-3. animation_timeline: action="play"
+spin = create_animation: name="spin", animation_length=4.0, loop=true, bones={}
+manage_keyframes: animation_id=spin.uuid, action="create",
+  bone_name="logo_root", channel="rotation", keyframes=[
+    {time: 0, values: [0, 0, 0], interpolation: "linear"},
+    {time: 2, values: [0, 180, 0], interpolation: "linear"},
+    {time: 4, values: [0, 360, 0], interpolation: "linear"}
+  ]
+animation_timeline: animation_id=spin.uuid, action="set_time", time=1.0
+capture_screenshot
+animation_timeline: animation_id=spin.uuid, action="play"
 ```
+
+Replace `logo_root` with a group returned by `list_outline`. This example turns around the Y axis once every four seconds; use Z for an in-plane spin of a logo lying in the XY plane. Keep the final angle at 360 degrees, with linear interpolation, for a continuous turn. Inspect a nonzero time before playback to verify the model moves around the intended pivot.
 
 ### Animation Channels
 
@@ -48,7 +60,7 @@ Create animations for 3D models using Blockbench MCP tools.
 ### Walk Cycle (1 second)
 
 ```
-create_animation: name="walk", animation_length=1.0, loop=true, bones={
+walk = create_animation: name="walk", animation_length=1.0, loop=true, bones={
   "leg_left": [
     {time: 0, rotation: [30, 0, 0]},
     {time: 0.5, rotation: [-30, 0, 0]},
@@ -65,21 +77,16 @@ create_animation: name="walk", animation_length=1.0, loop=true, bones={
 ### Smooth Curves
 
 ```
-animation_graph_editor: bone_name="arm", channel="rotation", action="smooth"
-```
-
-### Copy Animation to Mirrored Bone
-
-```
-animation_copy_paste: action="copy", source={bone: "arm_left"}
-animation_copy_paste: action="mirror_paste", target={bone: "arm_right", mirror_axis: "x"}
+animation_graph_editor: animation_id=walk.uuid,
+  bone_name="leg_left", channel="rotation", action="smooth"
 ```
 
 ### Batch Timing Adjustment
 
 ```
 batch_keyframe_operations: operation="scale", selection="all",
-  parameters={scale_factor: 2.0}  # Double animation duration
+  parameters={scale_factor: 2.0}  # Double keyframe times around zero
+animation_timeline: animation_id=walk.uuid, action="set_length", length=2.0
 ```
 
 ## Bone Rigging
@@ -99,12 +106,13 @@ bone_rigging: action="set_pivot", bone_data={name: "arm_left", origin: [4, 22, 0
 
 ## Timeline Control
 
+Pass the returned animation UUID as `animation_id` to target a timeline explicitly. Omitting it uses the selected animation; `create_animation` selects its result. Batch operations use the active timeline, so confirm its selection first. Increasing keyframe times requires updating the animation length separately.
+
 ```
-animation_timeline: action="set_fps", fps=60
-animation_timeline: action="set_length", length=2.5
-animation_timeline: action="loop", loop_mode="loop"  # or "once", "hold"
-animation_timeline: action="set_time", time=0.5
-animation_timeline: action="play"
+animation_timeline: animation_id=spin.uuid, action="set_fps", fps=60
+animation_timeline: animation_id=spin.uuid, action="loop", loop_mode="loop"  # or "once", "hold"
+animation_timeline: animation_id=spin.uuid, action="set_time", time=0.5
+animation_timeline: animation_id=spin.uuid, action="play"
 ```
 
 ## Tips
@@ -113,4 +121,4 @@ animation_timeline: action="play"
 - Set up bone hierarchy first with `bone_rigging` before adding keyframes
 - Use `catmullrom` interpolation for organic movement
 - Use `step` interpolation for mechanical/robotic movement
-- Mirror animations for symmetrical rigs to save time
+- For exact rotation values, use `manage_keyframes` with explicit per-axis values. Copy/paste and batch value-offset/mirror operations currently have unresolved value-handling bugs; do not rely on their success text as verification.

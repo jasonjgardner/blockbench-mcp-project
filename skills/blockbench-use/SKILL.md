@@ -38,17 +38,16 @@ Pick by primary intent. When the task spans domains, load **all** relevant skill
 
 ## Pre-flight checks
 
-Run before any mutation. One round of `list_outline` + `list_textures` is usually enough.
-
-1. **Is a project open?** If no project, call `create_project` first (format from the routing table below).
-2. **Is the format correct for the task?**
-   - Cube modeling (Minecraft) → `bedrock_block`, `java_block`, `bedrock`
-   - Mesh/freeform → `free`, `modded_entity`, `optifine_entity`
-   - Hytale character → `hytale_character` (64px)
-   - Hytale prop → `hytale_prop` (32px)
-   - Generic → `generic` or `free`
-3. **What's already there?** Use `list_outline` (structure) + `list_textures` (materials). Prefer `find_elements_by_criteria` / `filter_by_material` over dumping the whole outline for large projects.
-4. **Hytale project?** Run `hytale_validate_model` at the end; never silently exceed 255 nodes.
+1. **Discover the running host.** Call `get_capabilities: include_tools=true`. It works without an open project and returns `project` (or `null`), the active `format`, registered `formats`, and tool enabled states. An enabled tool may still require a compatible format, mode, or selection.
+2. **Choose a supported format.** Use an exact ID from `formats`, then inspect it with `get_capabilities: format_id="<returned ID>"`. This query does not create or switch projects.
+   - Mesh/freeform or Generic Model → normally `free`; require `format.features.meshes=true`. The display name "Generic Model" is not a format ID named `generic`.
+   - Minecraft cube modeling → choose the target's registered format, commonly `bedrock_block`, `java_block`, or `bedrock`. `modded_entity` and `optifine_entity` are cube formats, not freeform mesh choices; inspect the running host's feature flags.
+   - Animation → also require the format's `animation_mode` and suitable rig features.
+   - Hytale → use registered `hytale_character` or `hytale_prop` formats and their matching skill. Their availability depends on the Hytale plugin.
+   - A detailed feature value of `null` means unknown. In the compact list, `supported_features` contains true flags; missing flags are false unless listed in `unknown_features`.
+3. **Open the intended project.** If `project` is `null`, create it with the chosen ID. For an existing project, compare `project.format_id` with the needed format before editing. Do not silently replace the user's project. Call `get_capabilities` without `format_id` afterward to confirm the active project.
+4. **Inspect existing content.** Use `list_outline` + `list_textures`, or targeted `find_elements_by_criteria` / `filter_by_material` queries for large projects. Use `get_mesh_info` for actual mesh vertex and face keys; names such as `top_face` are not generated geometry IDs.
+5. **Hytale project?** Run `hytale_validate_model` at the end; never silently exceed 255 nodes.
 
 ## Multi-skill workflow compositions
 
@@ -102,7 +101,7 @@ apply_texture per match (from filter_by_material results)
 
 1. **Checkpoint before risk.** For any workflow of 3+ mutations, call `save_checkpoint: name="<descriptive>"` first. If the result is wrong, `undo: steps=N` back.
 2. **Filter, don't dump.** Prefer `find_elements_by_criteria`, `filter_by_material`, or `select_all_of_type` over `list_outline` when you know the shape of what you want. Large outlines blow context.
-3. **Respect the format.** Don't call Hytale tools on a non-Hytale project — they will error. Check `Format.id` via `risky_eval` or `hytale_get_format_info` if unsure.
+3. **Respect the format.** Use `get_capabilities` for the active format and feature flags; use `hytale_get_format_info` for Hytale-specific details when a Hytale format is active.
 4. **Screenshot after meaningful changes.** `capture_screenshot` confirms the model looks right. Do it at milestones, not every edit.
 5. **Export only when the user asks for a deliverable.** Use `list_export_formats` first to pick the right codec, then `export_model` with a `path` (or content-only if the user just wants to see it).
 6. **Never call `trigger_action: action="undo"` or `"redo"`.** Use the dedicated `undo` / `redo` tools — they return which actions were traversed.

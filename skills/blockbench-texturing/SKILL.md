@@ -47,6 +47,7 @@ Create and paint textures for 3D models using Blockbench MCP tools.
 | `set_mesh_uv` | Set UV coordinates |
 | `auto_uv_mesh` | Auto-generate UVs |
 | `rotate_mesh_uv` | Rotate UV mapping |
+| `get_mesh_info` | Read mesh face/vertex keys and existing UVs with `include_uv=true` |
 
 ## Resources
 
@@ -59,16 +60,18 @@ Create and paint textures for 3D models using Blockbench MCP tools.
 ### New Blank Texture
 
 ```
-create_texture: name="skin", width=64, height=64, fill_color="#808080"
+create_texture: name="skin", width=64, height=64, fill_color="#808080", layer_name="base"
 ```
 
 ### Texture with Transparency
 
 ```
-create_texture: name="overlay", width=32, height=32, fill_color=[0, 0, 0, 0]
+create_texture: name="overlay", width=32, height=32, fill_color=[0, 0, 0, 0], layer_name="base"
 ```
 
 ### Apply to Element
+
+`create_texture` requires `layer_name` whenever `fill_color` is supplied. Texture lookups accept a name or UUID; use the UUID from `list_textures` when names are ambiguous.
 
 ```
 apply_texture: id="body", texture="skin", applyTo="all"
@@ -224,20 +227,33 @@ texture_selection: texture_id="skin", action="feather_selection", radius=2
 ### Auto UV for Mesh
 
 ```
-auto_uv_mesh: mesh_id="sphere", mode="project"  # project, unwrap, cylinder, sphere
+select_mesh_elements: mesh_id="ball", mode="face"  # Select the intended faces
+auto_uv_mesh: mesh_id="ball", mode="project"  # project, unwrap, cylinder, sphere
 ```
+
+`project` uses the active preview camera; `unwrap` creates an independent planar mapping per face and does not pack UV islands. Pass explicit returned face keys in `faces` to target only part of a mesh.
 
 ### Set Custom UV
 
+Mesh face and vertex keys are generated at runtime; cube direction names are not mesh face IDs. Retain the `meshes[]` entry returned by `place_mesh` as shown in [the modeling skill](../blockbench-modeling/SKILL.md), or inspect an existing mesh using `get_mesh_info` with `include_uv=true`.
+
+This client orchestration example continues with the quad `panel` created in the modeling skill. `call` invokes the named MCP tool, checks `isError`, and decodes JSON results; variable expressions must be bound to actual returned values before sending tool arguments.
+
+```js
+const uvCorners = [[0, 0], [16, 0], [16, 16], [0, 16]];
+await call("set_mesh_uv", {
+  mesh_id: panel.uuid,
+  face_key: panel.face_keys[0],
+  uv_mapping: Object.fromEntries(panel.vertex_keys.map((key, index) => [key, uvCorners[index]])),
+});
 ```
-set_mesh_uv: mesh_id="cube", face_key="north",
-  uv_mapping={"v1": [0, 0], "v2": [16, 0], "v3": [16, 16], "v4": [0, 16]}
-```
+
+UV values use Blockbench texture units, not normalized 0–1 coordinates. For existing faces, use `faces.items[].key` and that face's `vertices` perimeter order from inspection; key the UV map with those exact vertex IDs. Read each page using its independent `next_offset` until `null`, without geometry edits between pages. See the modeling skill's `readMeshPages` helper; add `include_uv: true` when reading existing UVs. Reinspect after topology changes.
 
 ### Rotate UV
 
-```
-rotate_mesh_uv: mesh_id="cube", angle="90"
+```js
+await call("rotate_mesh_uv", {mesh_id: panel.uuid, angle: "90", faces: [panel.face_keys[0]]});
 ```
 
 ## Paint Settings
@@ -253,7 +269,7 @@ paint_settings: pixel_perfect=true, mirror_painting={enabled: true, axis: ["x"]}
 
 ```
 # Create texture
-create_texture: name="player_skin", width=64, height=64, fill_color="#C4A484"
+create_texture: name="player_skin", width=64, height=64, fill_color="#C4A484", layer_name="base"
 
 # Base colors
 paint_fill_tool: x=8, y=8, color="#C4A484", fill_mode="face"  # Face
@@ -271,7 +287,7 @@ apply_texture: id="head", texture="player_skin"
 
 ```
 # Create base
-create_texture: name="pattern", width=32, height=32, fill_color="#FFFFFF"
+create_texture: name="pattern", width=32, height=32, fill_color="#FFFFFF", layer_name="base"
 
 # Draw grid
 draw_shape_tool: shape="rectangle_h", start={x: 0, y: 0}, end={x: 32, y: 32},
