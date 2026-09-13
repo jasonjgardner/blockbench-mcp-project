@@ -93,7 +93,8 @@ in `plugins/blockbench-mcp/`. The marketplace catalogs are
 checked-in plugin directory.
 
 Preserve the Apache-2.0 skill license and the existing GPL-3.0-only notices for the
-packaging metadata and icon. Keep the versions in `package.json` and both plugin
+packaging metadata. Use the supplied `assets/plugin-logo.png` for the plugin icon
+and logo. Keep the versions in `package.json` and both plugin
 manifests aligned; these describe the agent package release, while the desktop
 server is versioned separately.
 

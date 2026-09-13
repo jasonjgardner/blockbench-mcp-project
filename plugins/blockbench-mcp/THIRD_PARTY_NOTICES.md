@@ -5,11 +5,15 @@ The seven bundled skills are maintained in `plugins/blockbench-mcp/skills/` on t
 Git installations and ZIP builds use those same files. They retain the project's
 [Apache License, Version 2.0](licenses/Apache-2.0.txt).
 
-The plugin metadata and `assets/icon.svg` originated in the
+The plugin metadata originated in the
 [Blockbench MCP server repository](https://github.com/jasonjgardner/blockbench-mcp-plugin),
-maintained by Jason J. Gardner under [GPL-3.0-only](LICENSE). Their relocation here
-does not change their license. The separately installed Blockbench desktop server
+maintained by Jason J. Gardner under [GPL-3.0-only](LICENSE). Its relocation here
+does not change its license. The separately installed Blockbench desktop server
 remains in that repository and is not bundled in this agent package.
+
+The ID mark in `assets/plugin-logo.png` was supplied by Jason J. Gardner for use
+as this plugin's icon and logo. It replaces the icon from the desktop server
+repository.
 
 The package contains seven MCP workflow skills. Developer skills, example resource
 packs, and legacy `.claude/skills` copies are not included.

@@ -24,8 +24,9 @@ marketplace catalogs must point to `./plugins/blockbench-mcp`; installations rea
 that directory directly and must not depend on generated artifacts.
 
 Keep the version in `package.json` and both client manifests aligned. Preserve the
-Apache-2.0 skill license and GPL-3.0-only notices for the packaging metadata and
-icon. Do not change personal client profiles as part of a package build.
+Apache-2.0 skill license and GPL-3.0-only notices for the packaging metadata.
+Use `assets/plugin-logo.png` as the plugin icon and logo. Do not change personal
+client profiles as part of a package build.
 
 Use Bun for validation and packaging:
 

@@ -1,6 +1,6 @@
 {
   "name": "blockbench-mcp",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Create, texture, and animate Blockbench models with a local MCP connection and seven modeling skills.",
   "author": {
     "name": "Jason J. Gardner",

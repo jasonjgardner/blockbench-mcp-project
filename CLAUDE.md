@@ -40,5 +40,5 @@ Validation uses Bun. The optional ZIP build uses Windows PowerShell on Windows o
 See [packaging instructions](docs/agent-plugin-packaging.md).
 
 The repository and skills retain Apache-2.0 licensing. The package preserves
-GPL-3.0-only notices for metadata and the icon moved from the desktop server
+GPL-3.0-only notices for metadata moved from the desktop server
 repository; see [package notices](plugins/blockbench-mcp/THIRD_PARTY_NOTICES.md).

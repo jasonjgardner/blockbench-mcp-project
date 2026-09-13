@@ -1,6 +1,6 @@
 {
   "name": "blockbench-mcp",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Create, texture, and animate Blockbench models with a local MCP connection and seven modeling skills.",
   "author": {
     "name": "Jason J. Gardner",
@@ -19,8 +19,8 @@
     "category": "Productivity",
     "capabilities": ["Read", "Write"],
     "websiteURL": "https://github.com/jasonjgardner/blockbench-mcp-project/tree/codex",
-    "composerIcon": "./assets/icon.svg",
-    "logo": "./assets/icon.svg",
+    "composerIcon": "./assets/plugin-logo.png",
+    "logo": "./assets/plugin-logo.png",
     "defaultPrompt": [
       "Inspect my open Blockbench model.",
       "Create a textured low-poly prop in Blockbench.",

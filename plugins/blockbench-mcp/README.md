@@ -92,13 +92,13 @@ duplicate tool listings.
 - `.claude-plugin/plugin.json`: Claude Code manifest.
 - `.mcp.json`: Shared HTTP connection.
 - `skills/`: The seven portable skills, with sibling links kept intact.
-- `assets/icon.svg`: Blockbench MCP icon.
+- `assets/plugin-logo.png`: Blockbench MCP ID mark, used as the plugin icon and logo.
 
 The skills are maintained directly in this plugin's `skills/` directory on the
 [agent project's codex branch](https://github.com/jasonjgardner/blockbench-mcp-project/tree/codex).
 The optional Bun packaging build creates a ZIP from these checked-in files.
 
-Packaging metadata and the icon retain the server repository's
+Packaging metadata retains the server repository's
 [GPL-3.0-only license](LICENSE). The skills retain their
 [Apache-2.0 license](licenses/Apache-2.0.txt). See
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for source attribution and changes.

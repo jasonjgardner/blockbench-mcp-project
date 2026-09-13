@@ -34,7 +34,7 @@ export const SOURCE_FILES: readonly string[] = [
   ".codex-plugin/plugin.json",
   ".claude-plugin/plugin.json",
   ".mcp.json",
-  "assets/icon.svg",
+  "assets/plugin-logo.png",
   "LICENSE",
   "licenses/Apache-2.0.txt",
   "THIRD_PARTY_NOTICES.md",

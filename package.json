@@ -1,6 +1,6 @@
 {
   "name": "blockbench-mcp-project",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Blockbench MCP sample workspace, agent skills, and Codex/Claude Code plugin packaging",
   "private": true,
   "type": "module",
