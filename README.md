@@ -51,6 +51,7 @@ The [`skills/`](./skills) directory ships a set of Agent Skills that teach Claud
 | [`blockbench-pbr-materials`](./skills/blockbench-pbr-materials) | Author PBR materials for Minecraft Bedrock RTX (normal / height / MER maps, `texture_set.json`). |
 | [`blockbench-animation`](./skills/blockbench-animation) | Create animations, keyframes, bone rigs, and animation curves. |
 | [`blockbench-hytale`](./skills/blockbench-hytale) | Hytale-specific models and animations (attachments, shading modes, quads, visibility keyframes). Requires the Hytale Blockbench plugin. |
+| [`blockbench-gpt-image-textures`](./skills/blockbench-gpt-image-textures) | AI-generate textures with GPT Image 2.5 (Flare / Sunburst) on fal.ai, with the model's UV layout written into the prompt. Requires a `FAL_KEY`. |
 | [`blockbench-development`](./skills/blockbench-development) | Build Blockbench plugins/extensions themselves — actions, dialogs, panels, menus, custom formats and codecs. |
 
 ### Install
@@ -63,5 +64,6 @@ npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill b
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-pbr-materials
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-animation
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-hytale
+npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-gpt-image-textures
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-development
 ```
