@@ -1,67 +1,77 @@
-# Blockbench MCP Sample Project
+# Blockbench MCP for Codex and Claude Code
 
-This repository serves as a template or example of how to create a workspace which sets up the [Blockbench MCP server](https://github.com/jasonjgardner/blockbench-mcp-plugin/) for success.
+The `codex` branch is the plugin marketplace for connecting your coding agent to
+Blockbench desktop. It includes the MCP connection and seven skills for modeling,
+texturing, animation, PBR materials, and Hytale workflows. The complete plugin is
+checked in at [`plugins/blockbench-mcp/`](plugins/blockbench-mcp/README.md), so
+installation does not require a build.
 
-> __Note:__ In this example repository, the MCP port in Blockbench is set to __`3000`__ and the endpoint is __`bb-mcp`__. These are the default values, but can be changed within the plugin's settings in Blockbench.
+## Install in Codex
 
-## Start Blockbench
-
-Desktop version of Blockbench must be running in the background.
-
-## IDE Setup Examples
-
-### VS Code
-
-See the files in the [.vscode](./.vscode) and [.github](./.github) directories.
-
-### Claude Code
-
-```bash
-claude mcp add blockbench npx mcp-remote http://localhost:3000/bb-mcp
+```sh
+codex plugin marketplace add jasonjgardner/blockbench-mcp-project --ref codex
+codex plugin add blockbench-mcp@blockbench-mcp-project
 ```
 
-### Cline
+Start a new Codex conversation after installation and load the `blockbench-use`
+skill to begin working with your open model.
 
-__cline_mcp_settings.json__
-```json
-{
-  "mcpServers": {
-    "blockbench": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "http://localhost:3000/bb-mcp"
-      ]
-    }
-  }
-}
+## Install in Claude Code
+
+```sh
+claude plugin marketplace add jasonjgardner/blockbench-mcp-project@codex
+claude plugin install blockbench-mcp@blockbench-mcp-project --scope user
 ```
 
-## Skills
+Claude's GitHub marketplace syntax uses `@codex` to select the branch. See the
+[Claude marketplace reference](https://code.claude.com/docs/en/plugin-marketplaces#plugin-marketplace-add).
 
-The [`skills/`](./skills) directory ships a set of Agent Skills that teach Claude (or any compatible client) how to drive the Blockbench MCP server productively. See [skills/README.md](./skills/README.md) for the full index.
+From a local checkout of this branch, you can also load the plugin for one session:
 
-| Skill | Purpose |
-|-------|---------|
-| [`blockbench-use`](./skills/blockbench-use) | **Mandatory orchestrator** — load before any `mcp__blockbench__*` call. Routes to the right sub-skill and enforces pre-flight checks, checkpoints, and exports. |
-| [`blockbench-mcp-overview`](./skills/blockbench-mcp-overview) | High-level tour of the MCP server's tools, resources, and prompts. Start here when onboarding to a new Blockbench project. |
-| [`blockbench-modeling`](./skills/blockbench-modeling) | Build geometry — cubes, meshes, spheres, cylinders — and edit vertices, faces, and groups. |
-| [`blockbench-texturing`](./skills/blockbench-texturing) | Create and paint textures, manage UVs, brushes, layers, fills, gradients, and shapes. |
-| [`blockbench-pbr-materials`](./skills/blockbench-pbr-materials) | Author PBR materials for Minecraft Bedrock RTX (normal / height / MER maps, `texture_set.json`). |
-| [`blockbench-animation`](./skills/blockbench-animation) | Create animations, keyframes, bone rigs, and animation curves. |
-| [`blockbench-hytale`](./skills/blockbench-hytale) | Hytale-specific models and animations (attachments, shading modes, quads, visibility keyframes). Requires the Hytale Blockbench plugin. |
-| [`blockbench-development`](./skills/blockbench-development) | Build Blockbench plugins/extensions themselves — actions, dialogs, panels, menus, custom formats and codecs. |
-
-### Install
-
-```bash
-npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-use
-npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-mcp-overview
-npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-modeling
-npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-texturing
-npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-pbr-materials
-npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-animation
-npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-hytale
-npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-development
+```sh
+claude plugin validate ./plugins/blockbench-mcp --strict
+claude --plugin-dir ./plugins/blockbench-mcp
 ```
+
+## Connect to Blockbench
+
+1. Open **Blockbench desktop** on the computer running the agent's MCP client.
+2. Load [the desktop MCP plugin](https://jasonjgardner.github.io/blockbench-mcp-plugin/mcp.js)
+   through **File > Plugins > Load Plugin from URL**.
+3. Keep Blockbench open. The shared connection uses `http://localhost:3000/bb-mcp`,
+   matching the default port and endpoint in Blockbench settings.
+4. Ask the agent to inspect your open model using `get_capabilities` and
+   `list_outline`. These calls can verify the connection without editing the model.
+
+In Claude Code, check `/mcp` and try:
+
+```text
+/blockbench-mcp:blockbench-use Inspect my open model and summarize its format and contents.
+```
+
+The [plugin README](plugins/blockbench-mcp/README.md) covers connection settings,
+skills, and troubleshooting. The desktop MCP server is maintained in the separate
+[Blockbench MCP plugin repository](https://github.com/jasonjgardner/blockbench-mcp-plugin).
+
+## Maintain or package the plugin
+
+The seven published MCP skills live in `plugins/blockbench-mcp/skills/`. Edit those
+files directly; they are the source loaded by both clients. See the
+[skill index](skills/README.md) for the included skills and the separate developer
+skill.
+
+Bun can validate the checked-in plugin and optionally create a ZIP with a SHA-256
+checksum:
+
+```sh
+bun run plugins:check
+bun run plugins:package
+```
+
+ZIP creation uses Windows PowerShell on Windows or the system `zip` command on
+macOS and Linux. See [packaging instructions](docs/agent-plugin-packaging.md).
+CI validates and packages changes to this branch.
+
+The [main branch](https://github.com/jasonjgardner/blockbench-mcp-project/tree/main)
+contains the original sample workspace and standalone skills. This branch keeps
+the installable marketplace catalogs and plugin together.

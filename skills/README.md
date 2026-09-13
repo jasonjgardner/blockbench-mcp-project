@@ -1,48 +1,68 @@
 # Blockbench MCP Skills
 
-Agent Skills that teach Claude (or any compatible MCP client) how to drive the [Blockbench MCP server](https://github.com/jasonjgardner/blockbench-mcp-plugin/) effectively.
+On the `codex` branch, the seven published MCP skills live in the checked-in
+plugin at `plugins/blockbench-mcp/skills/`. Both Codex and Claude Code load those
+same files. The root `skills/` directory retains this index and the separate
+Blockbench developer skill.
 
-Each subdirectory contains a `SKILL.md` with frontmatter (`name`, `description`) and the full skill body. Some skills also ship `references/` and `assets/` for deeper context.
+## Published skills
 
-## Skill Index
-
-| Skill | Description |
-|-------|-------------|
-| [blockbench-use](./blockbench-use) | **Mandatory orchestrator.** Load before any `mcp__blockbench__*` tool call that creates, modifies, or exports Blockbench content. Dispatches to the right sub-skill(s), enforces pre-flight checks (project open, format, outline), wraps risky work in checkpoints, and ensures exports close the loop. |
-| [blockbench-mcp-overview](./blockbench-mcp-overview) | Overview of the Blockbench MCP server's tools, resources, and prompts. Use to understand the full capability set or when starting a new Blockbench project. Covers all domains (modeling, animation, texturing, PBR, UI, camera). |
-| [blockbench-modeling](./blockbench-modeling) | Create and edit 3D models. Use when building geometry with cubes, creating meshes, placing spheres/cylinders, editing vertices, extruding faces, or organizing models with groups. Covers both cube-based Minecraft modeling and freeform mesh editing. |
-| [blockbench-texturing](./blockbench-texturing) | Create and paint textures. Use when creating textures, painting on models, using brush tools, filling colors, drawing shapes, applying gradients, managing texture layers, or working with UV mapping. Covers pixel art texturing, procedural painting, and UV manipulation. |
-| [blockbench-pbr-materials](./blockbench-pbr-materials) | Create and manage PBR (Physically Based Rendering) materials. Use when working with `texture_set.json` files, creating normal/height/MER maps, configuring material properties for Minecraft Bedrock RTX, or setting up multi-channel texture workflows. |
-| [blockbench-animation](./blockbench-animation) | Create and manage animations. Use when animating 3D models, creating keyframes, managing bone rigs, editing animation curves, or working with animation timelines. Covers walk cycles, idle animations, combat animations, and complex multi-bone animations. |
-| [blockbench-hytale](./blockbench-hytale) | Create Hytale models and animations. Use when working with Hytale character/prop formats, creating attachments, setting shading modes, using quads, or animating with visibility keyframes. **Requires the Hytale Blockbench plugin to be installed.** |
-| [blockbench-development](./blockbench-development) | Blockbench **plugin/extension** development (not MCP usage). Use when creating, modifying, or debugging JavaScript plugins for Blockbench including actions, dialogs, panels, menus, toolbars, model manipulation, animation APIs, and custom formats/codecs. The skill itself is named `blockbench-plugins` in its frontmatter. |
-
-## Loading Order
-
-Process skills first, implementation skills second:
-
-1. `blockbench-use` — orchestrator, always first when touching the 3D scene
-2. `blockbench-mcp-overview` — when you need the lay of the land
-3. Domain skill(s) — `blockbench-modeling`, `blockbench-texturing`, `blockbench-pbr-materials`, `blockbench-animation`, or `blockbench-hytale`
-4. `blockbench-development` — only when authoring a Blockbench plugin (not when using MCP)
+| Skill | Purpose |
+| --- | --- |
+| [blockbench-use](../plugins/blockbench-mcp/skills/blockbench-use/SKILL.md) | Mandatory orchestrator before Blockbench MCP calls that create, modify, or export content; routes tasks and checks the active project and format. |
+| [blockbench-mcp-overview](../plugins/blockbench-mcp/skills/blockbench-mcp-overview/SKILL.md) | Discover tools, resources, prompts, and workflows across modeling domains. |
+| [blockbench-modeling](../plugins/blockbench-mcp/skills/blockbench-modeling/SKILL.md) | Build cubes, meshes, groups, and model hierarchies. |
+| [blockbench-texturing](../plugins/blockbench-mcp/skills/blockbench-texturing/SKILL.md) | Create textures, paint, edit UVs, and assign materials. |
+| [blockbench-pbr-materials](../plugins/blockbench-mcp/skills/blockbench-pbr-materials/SKILL.md) | Work with normal, height, and MER material channels. |
+| [blockbench-animation](../plugins/blockbench-mcp/skills/blockbench-animation/SKILL.md) | Rig models and edit animations and keyframes. |
+| [blockbench-hytale](../plugins/blockbench-mcp/skills/blockbench-hytale/SKILL.md) | Use Hytale model, animation, and attachment workflows; requires the Hytale Blockbench plugin. |
 
 ## Install
 
-Install one or more skills into a project from the repo root:
+The marketplace installs the plugin and all seven skills without a build.
 
-```bash
-npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-use
-npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-mcp-overview
-npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-modeling
-npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-texturing
-npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-pbr-materials
-npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-animation
-npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-hytale
-npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-development
+For Codex:
+
+```sh
+codex plugin marketplace add jasonjgardner/blockbench-mcp-project --ref codex
+codex plugin add blockbench-mcp@blockbench-mcp-project
 ```
 
-## Authoring Notes
+For Claude Code:
 
-- Frontmatter `name` should match the directory name. The `blockbench-development` folder currently registers as `blockbench-plugins` in its frontmatter — keep this in mind when referencing it from other skills or tooling.
-- Skill descriptions should be specific enough that an agent can decide relevance from the description alone (include trigger phrases and the kinds of tool calls each skill governs).
-- Keep each `SKILL.md` self-contained; offload long reference material to `references/` and link to it from the body.
+```sh
+claude plugin marketplace add jasonjgardner/blockbench-mcp-project@codex
+claude plugin install blockbench-mcp@blockbench-mcp-project --scope user
+```
+
+See the [plugin README](../plugins/blockbench-mcp/README.md) for the local desktop
+connection and a first inspection request.
+
+## Loading order
+
+1. Load `blockbench-use` before calls that create, modify, or export model content.
+2. Load `blockbench-mcp-overview` when discovering capabilities or planning work
+   across domains.
+3. Load the relevant modeling, texturing, PBR, animation, or Hytale skills through
+   the sibling links in `blockbench-use`.
+
+Tool prefixes vary between clients. The skills use semantic tool names and direct
+agents to discover the registered tools available in the current session.
+
+## Separate developer skill
+
+[blockbench-development](blockbench-development/SKILL.md) covers writing Blockbench
+JavaScript plugins, custom formats, and codecs. Its frontmatter name is
+`blockbench-plugins`. It is maintained separately from the seven MCP usage skills
+and is not included in the marketplace plugin.
+
+The [main branch](https://github.com/jasonjgardner/blockbench-mcp-project/tree/main)
+retains the original standalone skill layout and sample workspace.
+
+## Authoring
+
+Edit published skills directly in `plugins/blockbench-mcp/skills/`. Keep each
+skill's frontmatter name aligned with its directory and use sibling `SKILL.md`
+links when loading another packaged skill. Preserve client-independent tool
+discovery and Apache-2.0 licensing. Validate changes with `bun run plugins:check`;
+use `bun run plugins:package` to create the optional ZIP.

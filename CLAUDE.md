@@ -1,62 +1,44 @@
-# CLAUDE.md
+# Claude Code guidance
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This `codex` branch is the Blockbench MCP plugin marketplace. Follow
+[AGENTS.md](AGENTS.md) for repository structure, maintenance rules, and Blockbench
+workflows. The original sample workspace remains on `main`.
 
-## Project Overview
+The complete plugin lives at `plugins/blockbench-mcp/`; its seven MCP skills are
+maintained directly in `plugins/blockbench-mcp/skills/`. Both marketplace catalogs
+load this checked-in directory. Installation does not require generated files.
+The separate desktop MCP server is maintained in
+[jasonjgardner/blockbench-mcp-plugin](https://github.com/jasonjgardner/blockbench-mcp-plugin).
 
-This is a Blockbench MCP (Model Context Protocol) sample project that serves as a template for creating workspaces compatible with the [Blockbench MCP server](https://github.com/jasonjgardner/blockbench-mcp-plugin/). The repository contains Minecraft resource pack assets designed for use with Blockbench modeling software.
+## Install or load locally
 
-## Project Structure
-
-```
-resource_pack/
-├── models/
-│   ├── blocks/           # Block geometry definitions
-│   │   └── basic_block.geo.json
-│   └── entity/           # Entity geometry definitions
-│       └── llama.geo.json
-└── textures/
-    ├── blocks/           # Block textures and materials
-    │   ├── block.texture_set.json
-    │   ├── block_mer.png
-    │   ├── block_normal.png
-    │   └── block_texture.png
-    └── entity/           # Entity textures
-        └── llama.png
+```sh
+claude plugin marketplace add jasonjgardner/blockbench-mcp-project@codex
+claude plugin install blockbench-mcp@blockbench-mcp-project --scope user
 ```
 
-## File Formats and Architecture
+For a local session from this checkout:
 
-### Geometry Files (.geo.json)
-- Follow Minecraft Bedrock Edition geometry format (version 1.12.0)
-- Contain bone hierarchies, pivot points, and UV mappings
-- Located in `resource_pack/models/` with subdirectories for `blocks/` and `entity/`
+```sh
+claude plugin validate ./plugins/blockbench-mcp --strict
+claude --plugin-dir ./plugins/blockbench-mcp
+```
 
-### Texture Set Files (.texture_set.json)
-- Define PBR material properties using format version 1.21.30
-- Map color, metalness/emissive/roughness (MER), and normal textures
-- Located in `resource_pack/textures/blocks/`
+Keep Blockbench desktop running with the desktop MCP plugin loaded. The shared
+connection defaults to `http://localhost:3000/bb-mcp`. Discover tools through the
+client and load `blockbench-use` before modifying or exporting model content.
 
-### Texture Assets
-- PNG format for color, normal, and MER maps
-- Standard 16x16 resolution for blocks, variable for entities
-- Organized by asset type (blocks vs entities)
+## Validate and package
 
-## Development Workflow
+```sh
+bun run plugins:check
+bun run plugins:package
+```
 
-This project contains static asset files with no build process, testing framework, or compilation steps. Changes involve:
+Validation uses Bun. The optional ZIP build uses Windows PowerShell on Windows or
+`zip` on macOS and Linux and writes ignored output to `artifacts/agent-plugins/`.
+See [packaging instructions](docs/agent-plugin-packaging.md).
 
-1. **Geometry Editing**: Modify `.geo.json` files for 3D model structure
-2. **Texture Updates**: Replace PNG files or update texture set configurations
-3. **Asset Organization**: Maintain the directory structure for proper resource pack function
-
-## Key Considerations
-
-- All geometry files use Minecraft Bedrock format specifications
-- Texture sets support PBR rendering with separate maps for different material properties
-- File paths and identifiers in geometry files must match the directory structure
-- UV coordinates in geometry files correspond to texture dimensions
-
-## License
-
-This project is licensed under the Apache License 2.0.
+The repository and skills retain Apache-2.0 licensing. The package preserves
+GPL-3.0-only notices for metadata and the icon moved from the desktop server
+repository; see [package notices](plugins/blockbench-mcp/THIRD_PARTY_NOTICES.md).

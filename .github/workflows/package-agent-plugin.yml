@@ -1,0 +1,36 @@
+name: Package agent plugin
+
+on:
+  push:
+    branches: [codex]
+  pull_request:
+    branches: [codex]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Package Codex and Claude Code plugin
+        run: bun run plugins:package
+
+      - name: Upload agent plugin archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: blockbench-mcp-agent-plugin
+          path: |
+            artifacts/agent-plugins/*.zip
+            artifacts/agent-plugins/*.sha256
+          if-no-files-found: error
+          retention-days: 30

@@ -1,32 +1,60 @@
-# Blockbench MCP Agent
+# Blockbench MCP marketplace branch
 
-You are an expert 3D modeler, texture artist, and animator specializing in Blockbench. You have full access to the Blockbench MCP API and can perform any action available through it.
+This `codex` branch distributes the Blockbench MCP agent plugin for Codex and
+Claude Code. The `main` branch retains the original sample workspace. The desktop
+MCP server is developed separately in `jasonjgardner/blockbench-mcp-plugin`.
 
-## Your Capabilities
+## Repository structure
 
-You can perform the following actions:
+- `.agents/plugins/marketplace.json`: Codex marketplace catalog.
+- `.claude-plugin/marketplace.json`: Claude Code marketplace catalog.
+- `plugins/blockbench-mcp/`: the complete, checked-in plugin for both clients.
+- `plugins/blockbench-mcp/skills/`: the seven canonical MCP skills on this branch.
+- `skills/README.md`: skill index; `skills/blockbench-development/` is a separate
+  developer skill outside the published plugin.
+- `build/`: Bun validation and optional ZIP packaging, with OS compression tools.
+- `docs/agent-plugin-packaging.md`: installation and maintenance instructions.
+- `artifacts/agent-plugins/`: ignored ZIP, checksum, and plugin build output.
 
-- **Model Creation**: Create new models, import existing ones, and manage model properties
-- **UV Editing**: Edit UV maps, create textures, and manage texture properties
-- **Animation**: Create animations, manage animation properties, and export animations
-- **Risky Eval**: Run any JavaScript code in the Blockbench environment
+## Maintaining the plugin
 
-## Your Workflow
+Edit the published skills directly under `plugins/blockbench-mcp/skills/`. Keep
+one tracked source for each of the seven MCP skills on this branch. Both
+marketplace catalogs must point to `./plugins/blockbench-mcp`; installations read
+that directory directly and must not depend on generated artifacts.
 
-1. **Understand the User's Request**: Analyze the user's request and determine the appropriate actions to take
-2. **Plan the Steps**: Create a step-by-step plan to achieve the desired result
-3. **Execute the Actions**: Use the Blockbench MCP tools and resources to perform the necessary actions. Prefer using the Blockbench MCP tools and resources that are available to you over using the risky eval tool. Only use the risky eval tool if there is no other way to achieve the desired result.
-4. **Verify the Result**: Ensure the desired result has been achieved
-5. **Provide Feedback**: Inform the user of the result and provide any additional information
+Keep the version in `package.json` and both client manifests aligned. Preserve the
+Apache-2.0 skill license and GPL-3.0-only notices for the packaging metadata and
+icon. Do not change personal client profiles as part of a package build.
 
-### Alternative Workflow
+Use Bun for validation and packaging:
 
-Using the `from_geo_json` together with the `risky_eval` MCP tools opens up much more possibilities and may be more efficient for complex tasks. If you think using the `from_geo_json` and/or `risky_eval` tool would be more efficient for a task, you may propose using it to the user. If the user agrees, you may use the `from_geo_json` and/or `risky_eval` tool. If the user does not agree, you must use the standard workflow.
+```sh
+bun run plugins:check
+bun run plugins:package
+```
 
-## Important Notes
+The checker requires only Bun. ZIP creation uses Windows PowerShell on Windows
+or `zip` on macOS and Linux. Keep the build free of Python and npm dependencies.
+Use strict TypeScript and document exported symbols. Prefer early returns and
+explicitly narrowed types.
 
-- Always use the Blockbench MCP API to perform actions
-- Always verify that actions have been completed successfully
-- Always provide clear and concise feedback to the user
-- If you encounter an error, inform the user and provide any relevant information
-- Allow for a human-in-the-loop during model creation. This means the modeling session can pause for human input if needed, and you may need to watch for changes as the user makes them.
+Native Claude validation can check the source plugin directly:
+
+```sh
+claude plugin validate ./plugins/blockbench-mcp --strict
+claude --plugin-dir ./plugins/blockbench-mcp
+```
+
+## Working in Blockbench
+
+For modeling, texturing, animation, or exports, load the packaged `blockbench-use`
+skill and relevant domain skills before editing the scene. Discover the tools
+exposed by the current MCP client and use their registered names. Inspect the
+active project and format, preserve checkpoints for risky edits, and verify the
+result with available inspection or screenshot tools.
+
+Repository documentation and packaging changes use normal development tools and
+do not require a live Blockbench connection. Use the MCP server when the task
+involves the user's model or a requested live integration check. Explain failures
+clearly and involve the user when missing runtime state prevents progress.

@@ -1,21 +1,24 @@
 ---
 name: blockbench-use
-description: "MANDATORY prerequisite — invoke BEFORE any mcp__blockbench__* tool call that creates, modifies, or exports Blockbench content. Orchestrates the other blockbench-* skills (modeling, texturing, animation, PBR, Hytale, MCP overview). Trigger on: 3D model/texture/animation creation or edits in Blockbench; calls to mcp__blockbench__* tools; phrases like 'build a Minecraft model', 'paint a texture', 'animate this rig', 'export the model'. Dispatches to the right sub-skill(s), enforces pre-flight checks (project open, format, outline), wraps risky work in checkpoints, and ensures exports close the loop."
+description: "MANDATORY prerequisite — invoke BEFORE any Blockbench MCP tool call that creates, modifies, or exports Blockbench content. Orchestrates the other blockbench-* skills (modeling, texturing, animation, PBR, Hytale, MCP overview). Trigger on: 3D model/texture/animation creation or edits in Blockbench; calls to Blockbench MCP tools; phrases like 'build a Minecraft model', 'paint a texture', 'animate this rig', 'export the model'. Dispatches to the right sub-skill(s), enforces pre-flight checks (project open, format, outline), wraps risky work in checkpoints, and ensures exports close the loop."
+license: Apache-2.0
 ---
 
 # Blockbench Use
 
 Orchestrator for Blockbench MCP work. Load this **before** touching the 3D scene so the right sub-skills load and the right pre-flight checks run.
 
+Tool names such as `get_capabilities` are semantic short names. Discover the Blockbench MCP tools exposed by the current client and use their actual registered names; server and plugin prefixes can differ between Codex and Claude Code.
+
 ## Rule
 
-Any request that will call an `mcp__blockbench__*` tool to create or modify content **must** go through this skill first.
+Any request that will call a Blockbench MCP tool to create, modify, or export content **must** go through this skill first.
 
 Steps, in order:
 
 1. **Classify the request** → pick one or more sub-skills (table below).
 2. **Pre-flight** → confirm a project is open and the format is correct (see "Pre-flight checks").
-3. **Load the sub-skill(s)** via the Skill tool.
+3. **Load the sub-skill(s)** using the sibling `SKILL.md` links below. Use the current client's skill-loading mechanism when available, or read those files directly; a dedicated Skill tool is not required.
 4. **Checkpoint before risk** → call `save_checkpoint` for multi-step edits that might need rollback.
 5. **Execute** the sub-skill's workflow.
 6. **Close the loop** → screenshot, validate (Hytale), or export if the user asked for a deliverable.
@@ -26,13 +29,12 @@ Pick by primary intent. When the task spans domains, load **all** relevant skill
 
 | User intent | Primary skill | Also load when… |
 |---|---|---|
-| Build cubes, meshes, groups, hierarchy | `blockbench-modeling` | needs texture → `blockbench-texturing` |
-| Paint, fill, draw, brush, layers, UV | `blockbench-texturing` | channel-aware (normal/MER) → `blockbench-pbr-materials` |
-| Keyframes, bone rigs, walk/idle/attack | `blockbench-animation` | bones need geometry first → `blockbench-modeling` |
-| `.texture_set.json`, normal/height/MER | `blockbench-pbr-materials` | textures not yet drawn → `blockbench-texturing` |
-| `.blockymodel`, `.blockyanim`, attachments, quads, stretch, shading modes | `blockbench-hytale` | modeling/animation parts → those skills |
-| "What tools are available?" / unclear scope | `blockbench-mcp-overview` | — |
-| Write a Blockbench JS plugin (not use MCP) | `blockbench-plugins` (from `blockbench-development/`) | — |
+| Build cubes, meshes, groups, hierarchy | [blockbench-modeling](../blockbench-modeling/SKILL.md) | needs texture → [blockbench-texturing](../blockbench-texturing/SKILL.md) |
+| Paint, fill, draw, brush, layers, UV | [blockbench-texturing](../blockbench-texturing/SKILL.md) | channel-aware (normal/MER) → [blockbench-pbr-materials](../blockbench-pbr-materials/SKILL.md) |
+| Keyframes, bone rigs, walk/idle/attack | [blockbench-animation](../blockbench-animation/SKILL.md) | bones need geometry first → [blockbench-modeling](../blockbench-modeling/SKILL.md) |
+| `.texture_set.json`, normal/height/MER | [blockbench-pbr-materials](../blockbench-pbr-materials/SKILL.md) | textures not yet drawn → [blockbench-texturing](../blockbench-texturing/SKILL.md) |
+| `.blockymodel`, `.blockyanim`, attachments, quads, stretch, shading modes | [blockbench-hytale](../blockbench-hytale/SKILL.md) | modeling/animation parts → those skills |
+| "What tools are available?" / unclear scope | [blockbench-mcp-overview](../blockbench-mcp-overview/SKILL.md) | — |
 
 **Skip this skill** for pure research questions (API docs, "how does Blockbench work?"). Go straight to `blockbench-mcp-overview`.
 
@@ -119,6 +121,6 @@ Otherwise prefer the specialized skills — they have concrete examples and retu
 
 ## What this skill does NOT cover
 
-- **Blockbench plugin development** (writing `.js` plugins) → `blockbench-plugins`
+- **Blockbench plugin development** (writing `.js` plugins) → outside this MCP skill set
 - **MCP server development** (adding tools to this repo) → not in this skill set
 - **General 3D theory / THREE.js / rendering internals** → out of scope

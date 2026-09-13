@@ -1,0 +1,31 @@
+{
+  "name": "blockbench-mcp",
+  "version": "1.8.0",
+  "description": "Create, texture, and animate Blockbench models with a local MCP connection and seven modeling skills.",
+  "author": {
+    "name": "Jason J. Gardner",
+    "url": "https://github.com/jasonjgardner"
+  },
+  "homepage": "https://github.com/jasonjgardner/blockbench-mcp-project/tree/codex",
+  "repository": "https://github.com/jasonjgardner/blockbench-mcp-project",
+  "license": "GPL-3.0-only AND Apache-2.0",
+  "keywords": ["blockbench", "mcp", "3d-modeling", "minecraft", "hytale", "animation"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Blockbench MCP",
+    "shortDescription": "Model, texture, and animate in Blockbench.",
+    "longDescription": "Connect to Blockbench desktop and use seven skills for modeling, texturing, animation, PBR materials, and Hytale workflows. Requires the Blockbench MCP desktop plugin running on this computer at http://localhost:3000/bb-mcp.",
+    "developerName": "Jason J. Gardner",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://github.com/jasonjgardner/blockbench-mcp-project/tree/codex",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/icon.svg",
+    "defaultPrompt": [
+      "Inspect my open Blockbench model.",
+      "Create a textured low-poly prop in Blockbench.",
+      "Animate my Blockbench character with a walk cycle."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

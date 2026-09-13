@@ -1,9 +1,12 @@
 ---
 name: blockbench-hytale
 description: Create Hytale models and animations using Blockbench MCP tools. Use when working with Hytale character/prop formats, creating attachments, setting shading modes, using quads, or animating with visibility keyframes. Requires the Hytale Blockbench plugin to be installed.
+license: Apache-2.0
 ---
 
 # Blockbench Hytale
+
+Before creating, changing, or exporting project content, read [Blockbench use](../blockbench-use/SKILL.md). Tool names below are semantic short names: discover and call the actual Blockbench MCP tools exposed by the current client, whose server or plugin prefixes may differ.
 
 Create models for Hytale using Blockbench with the Hytale plugin.
 

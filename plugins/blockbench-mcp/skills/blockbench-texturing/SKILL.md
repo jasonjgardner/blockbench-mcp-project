@@ -1,9 +1,12 @@
 ---
 name: blockbench-texturing
 description: Create and paint textures in Blockbench using MCP tools. Use when creating textures, painting on models, using brush tools, filling colors, drawing shapes, applying gradients, managing texture layers, or working with UV mapping. Covers pixel art texturing, procedural painting, and UV manipulation.
+license: Apache-2.0
 ---
 
 # Blockbench Texturing
+
+Before creating, changing, or exporting project content, read [Blockbench use](../blockbench-use/SKILL.md). Tool names below are semantic short names: discover and call the actual Blockbench MCP tools exposed by the current client, whose server or plugin prefixes may differ.
 
 Create and paint textures for 3D models using Blockbench MCP tools.
 

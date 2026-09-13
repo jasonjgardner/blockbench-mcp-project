@@ -1,9 +1,12 @@
 ---
 name: blockbench-pbr-materials
 description: Create and manage PBR materials in Blockbench using MCP tools. Use for Bedrock texture_set.json import/export, normal or height maps, packed MER textures, material channel replacement, and uniform material properties.
+license: Apache-2.0
 ---
 
 # Blockbench PBR Materials
+
+Before creating, changing, or exporting project content, read [Blockbench use](../blockbench-use/SKILL.md). Tool names below are semantic short names: discover and call the actual Blockbench MCP tools exposed by the current client, whose server or plugin prefixes may differ.
 
 Use `get_capabilities` to inspect the active project and registered format features, including `pbr`. Check `list_textures` and `list_materials` before assigning existing assets. Texture and material references accept names or UUIDs; prefer returned UUIDs when names overlap.
 

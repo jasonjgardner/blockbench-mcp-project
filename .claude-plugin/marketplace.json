@@ -1,0 +1,12 @@
+{
+  "name": "blockbench-mcp-project",
+  "owner": {
+    "name": "Jason J. Gardner"
+  },
+  "plugins": [
+    {
+      "name": "blockbench-mcp",
+      "source": "./plugins/blockbench-mcp"
+    }
+  ]
+}

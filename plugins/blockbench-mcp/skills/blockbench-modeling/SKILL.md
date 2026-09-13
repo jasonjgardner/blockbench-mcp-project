@@ -1,9 +1,12 @@
 ---
 name: blockbench-modeling
 description: Create and edit 3D models in Blockbench using MCP tools. Use when building geometry with cubes, creating meshes, placing spheres/cylinders, editing vertices, extruding faces, or organizing models with groups. Covers both cube-based Minecraft modeling and freeform mesh editing.
+license: Apache-2.0
 ---
 
 # Blockbench Modeling
+
+Before creating, changing, or exporting project content, read [Blockbench use](../blockbench-use/SKILL.md). Tool names below are semantic short names: discover and call the actual Blockbench MCP tools exposed by the current client, whose server or plugin prefixes may differ.
 
 Build 3D models using cubes and meshes in Blockbench.
 
@@ -304,4 +307,4 @@ The predicate uses local Y, so `> 0` selects the upper half of this sphere even 
 - Create bone hierarchy before adding geometry
 - Use `duplicate_element` with offset for symmetrical parts
 - Mesh editing is more flexible but cubes are simpler for Minecraft-style models
-- Before reworking a model, call `save_checkpoint` (history skill) so you can roll back with `undo`
+- Before reworking a model, call `save_checkpoint` so you can roll back with `undo`

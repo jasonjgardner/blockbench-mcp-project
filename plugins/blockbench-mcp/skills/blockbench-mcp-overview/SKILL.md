@@ -1,9 +1,12 @@
 ---
 name: blockbench-mcp-overview
 description: Overview of the Blockbench MCP server tools, resources, and prompts. Use to understand the full MCP capability set, learn how tools work together, or when starting a new Blockbench project. Covers all domains (modeling, animation, texturing, PBR, UI, camera) and their MCP interfaces.
+license: Apache-2.0
 ---
 
 # Blockbench MCP Overview
+
+Before creating, changing, or exporting project content, read [Blockbench use](../blockbench-use/SKILL.md). Tool names below are semantic short names: discover and call the actual Blockbench MCP tools exposed by the current client, whose server or plugin prefixes may differ.
 
 Complete guide to the Blockbench MCP server for AI-assisted 3D modeling.
 

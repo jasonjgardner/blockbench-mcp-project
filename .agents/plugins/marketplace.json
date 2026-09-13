@@ -1,0 +1,20 @@
+{
+  "name": "blockbench-mcp-project",
+  "interface": {
+    "displayName": "Blockbench MCP"
+  },
+  "plugins": [
+    {
+      "name": "blockbench-mcp",
+      "source": {
+        "source": "local",
+        "path": "./plugins/blockbench-mcp"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
