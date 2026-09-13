@@ -7,6 +7,8 @@ description: Create and manage PBR materials in Blockbench using MCP tools. Use 
 
 Use `get_capabilities` to inspect the active project and registered format features, including `pbr`. Check `list_textures` and `list_materials` before assigning existing assets. Texture and material references accept names or UUIDs; prefer returned UUIDs when names overlap.
 
+Preserve the target's material convention. Bedrock MER is not glTF metallic/roughness or an arbitrary ORM packing. A successful Blockbench preview does not prove that a chosen exporter or game supports the material. Align channel maps to the color texture's UV layout and inspect their dimensions before painting. Shared UV and delivery checks are in [format and delivery guidance](../blockbench-use/references/formats-and-delivery.md).
+
 ## Tools and Parameter Names
 
 | Tool | Parameters used in this workflow |

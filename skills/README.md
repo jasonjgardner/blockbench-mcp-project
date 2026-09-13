@@ -8,8 +8,8 @@ Each subdirectory contains a `SKILL.md` with frontmatter (`name`, `description`)
 
 | Skill | Description |
 |-------|-------------|
-| [blockbench-use](./blockbench-use) | **Mandatory orchestrator.** Load before any `mcp__blockbench__*` tool call that creates, modifies, or exports Blockbench content. Dispatches to the right sub-skill(s), enforces pre-flight checks (project open, format, outline), wraps risky work in checkpoints, and ensures exports close the loop. |
-| [blockbench-mcp-overview](./blockbench-mcp-overview) | Overview of the Blockbench MCP server's tools, resources, and prompts. Use to understand the full capability set or when starting a new Blockbench project. Covers all domains (modeling, animation, texturing, PBR, UI, camera). |
+| [blockbench-use](./blockbench-use) | Load before Blockbench content changes. Discover the running format/tools, route to domain skills, and verify results. Includes shared [format and delivery guidance](./blockbench-use/references/formats-and-delivery.md). |
+| [blockbench-mcp-overview](./blockbench-mcp-overview) | Discover tools, resources and editor modes; find shared workflows, armature/weight tools, Java display transforms, Bedrock material instances, and export/recovery guidance. |
 | [blockbench-modeling](./blockbench-modeling) | Create and edit 3D models. Use when building geometry with cubes, creating meshes, placing spheres/cylinders, editing vertices, extruding faces, or organizing models with groups. Covers both cube-based Minecraft modeling and freeform mesh editing. |
 | [blockbench-texturing](./blockbench-texturing) | Create and paint textures. Use when creating textures, painting on models, using brush tools, filling colors, drawing shapes, applying gradients, managing texture layers, or working with UV mapping. Covers pixel art texturing, procedural painting, and UV manipulation. |
 | [blockbench-pbr-materials](./blockbench-pbr-materials) | Create and manage PBR (Physically Based Rendering) materials. Use when working with `texture_set.json` files, creating normal/height/MER maps, configuring material properties for Minecraft Bedrock RTX, or setting up multi-channel texture workflows. |
@@ -22,7 +22,7 @@ Each subdirectory contains a `SKILL.md` with frontmatter (`name`, `description`)
 Process skills first, implementation skills second:
 
 1. `blockbench-use` — orchestrator, always first when touching the 3D scene
-2. `blockbench-mcp-overview` — when you need the lay of the land
+2. `blockbench-mcp-overview` — when discovering capabilities or crossing specialized format workflows
 3. Domain skill(s) — `blockbench-modeling`, `blockbench-texturing`, `blockbench-pbr-materials`, `blockbench-animation`, or `blockbench-hytale`
 4. `blockbench-development` — only when authoring a Blockbench plugin (not when using MCP)
 

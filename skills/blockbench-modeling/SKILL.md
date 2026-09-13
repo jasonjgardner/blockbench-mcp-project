@@ -7,6 +7,12 @@ description: Create and edit 3D models in Blockbench using MCP tools. Use when b
 
 Build 3D models using cubes and meshes in Blockbench.
 
+## Plan the Shape and Target
+
+Use [format and delivery guidance](../blockbench-use/references/formats-and-delivery.md) when selecting a format or exporting. Block out the silhouette and proportions before UV layout and surface detail. Match polygon density to visible shape or deformation needs; automatic subdivision is not a quality step by itself.
+
+For articulated parts, create a hierarchy with pivots at joints and unique, consistent bone names. Group origins are pivots, not translations added to a cube's `from`/`to` coordinates. Place cube bounds in the model's rest coordinate space; the hierarchy applies rotations around those pivots. Mesh vertices are mesh-local, as described below. Check overlapping surfaces for z-fighting and preview moving parts for hidden gaps. See the official [modeling overview](https://blockbench.net/wiki/guides/blockbench-overview-tips/).
+
 ## Available Tools
 
 ### Cube Tools
@@ -14,6 +20,7 @@ Build 3D models using cubes and meshes in Blockbench.
 |------|---------|
 | `place_cube` | Create cubes with position, size, texture |
 | `modify_cube` | Edit cube properties (position, rotation, UV, etc.) |
+| `get_cube_uv` / `set_cube_uv` | Inspect/edit box or per-face cube UVs; see texturing skill |
 
 ### Mesh Tools
 | Tool | Purpose |
@@ -45,6 +52,8 @@ Build 3D models using cubes and meshes in Blockbench.
 
 ## Cube Modeling
 
+`place_cube` supports untextured blockout in the current source plugin; use `get_capabilities: include_tools=true` to identify the loaded build. A new texture can be created after the silhouette is established. Supplying a texture or group requires a valid existing reference. Use returned UUIDs for later edits; the literal `group="root"` or `add_group`'s `parent="root"` means outliner root. Name a real root bone `rig_root`, or use its UUID, to avoid that reserved target.
+
 ### Place a Cube
 
 ```
@@ -52,7 +61,7 @@ place_cube: elements=[{
   name: "body",
   from: [-4, 0, -2],
   to: [4, 12, 2]
-}], faces=true  # Auto UV
+}], faces=true  # Size-based Auto UV; this does not pack a texture atlas
 ```
 
 ### Place Multiple Cubes
@@ -191,8 +200,8 @@ The host Knife tool depends on interactive pointer state, so `knife_tool` return
 ### Create Group Hierarchy
 
 ```
-add_group: name="root", origin=[0, 0, 0], rotation=[0, 0, 0]
-add_group: name="body", parent="root", origin=[0, 12, 0]
+add_group: name="rig_root", origin=[0, 0, 0], rotation=[0, 0, 0]
+add_group: name="body", parent="rig_root", origin=[0, 12, 0]
 add_group: name="head", parent="body", origin=[0, 24, 0]
 ```
 
@@ -261,26 +270,30 @@ Useful when refactoring textures: find all users before swapping or retiring a t
 
 ### Minecraft Character
 
+This example assumes a cube format with a bone rig and a 32-unit-tall rest pose. It does not prescribe a player-skin template. The cube bounds already include their location in the character; the group pivot does not reposition them.
+
 ```
 # Create hierarchy
-add_group: name="root", origin=[0, 0, 0]
-add_group: name="body", parent="root", origin=[0, 24, 0]
+add_group: name="rig_root", origin=[0, 0, 0]
+add_group: name="body", parent="rig_root", origin=[0, 24, 0]
 add_group: name="head", parent="body", origin=[0, 24, 0]
 add_group: name="arm_left", parent="body", origin=[5, 22, 0]
 add_group: name="arm_right", parent="body", origin=[-5, 22, 0]
-add_group: name="leg_left", parent="root", origin=[2, 12, 0]
-add_group: name="leg_right", parent="root", origin=[-2, 12, 0]
+add_group: name="leg_left", parent="rig_root", origin=[2, 12, 0]
+add_group: name="leg_right", parent="rig_root", origin=[-2, 12, 0]
 
 # Add geometry
-place_cube: elements=[{name: "head", from: [-4, 24, -4], to: [4, 32, 4]}], group="head"
-place_cube: elements=[{name: "body", from: [-4, 12, -2], to: [4, 24, 2]}], group="body"
-place_cube: elements=[{name: "arm", from: [-1, 0, -1], to: [1, 10, 1]}], group="arm_left"
-place_cube: elements=[{name: "arm", from: [-1, 0, -1], to: [1, 10, 1]}], group="arm_right"
-place_cube: elements=[{name: "leg", from: [-2, 0, -2], to: [2, 12, 2]}], group="leg_left"
-place_cube: elements=[{name: "leg", from: [-2, 0, -2], to: [2, 12, 2]}], group="leg_right"
+place_cube: elements=[{name: "head_geo", from: [-4, 24, -4], to: [4, 32, 4]}], group="head"
+place_cube: elements=[{name: "body_geo", from: [-4, 12, -2], to: [4, 24, 2]}], group="body"
+place_cube: elements=[{name: "arm_left_geo", from: [4, 12, -1], to: [6, 22, 1]}], group="arm_left"
+place_cube: elements=[{name: "arm_right_geo", from: [-6, 12, -1], to: [-4, 22, 1]}], group="arm_right"
+place_cube: elements=[{name: "leg_left_geo", from: [0, 0, -2], to: [4, 12, 2]}], group="leg_left"
+place_cube: elements=[{name: "leg_right_geo", from: [-4, 0, -2], to: [0, 12, 2]}], group="leg_right"
 ```
 
 ### Smooth Organic Shape
+
+Only subdivide when the requested shape needs the extra vertices. Subdivision adds topology; it does not by itself smooth the silhouette.
 
 ```js
 await call("create_sphere", {
@@ -300,8 +313,8 @@ The predicate uses local Y, so `> 0` selects the upper half of this sphere even 
 - Use `list_outline` to see current model structure
 - Use `find_elements_by_criteria` for targeted queries instead of filtering `list_outline` results client-side
 - Set group origins at joint/pivot points for animation
-- Use `faces=true` for auto UV mapping on cubes
+- Use `faces=true` for size-based cube UVs; inspect and arrange the UVs before detailed painting
 - Create bone hierarchy before adding geometry
-- Use `duplicate_element` with offset for symmetrical parts
+- `duplicate_element` with an offset creates a translated copy, not a mirrored shape or mirrored UV layout
 - Mesh editing is more flexible but cubes are simpler for Minecraft-style models
-- Before reworking a model, call `save_checkpoint` (history skill) so you can roll back with `undo`
+- For a substantial rework, a `save_checkpoint` history marker can help recovery; inspect actual history entries before `undo`
