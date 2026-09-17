@@ -1,0 +1,14 @@
+{
+    "enabledMcpjsonServers": [
+        "blockbench",
+        "babylonjs-node-material",
+        "babylonjs-node-geometry",
+        "babylonjs-node-particle"
+    ],
+    "disabledMcpjsonServers": [
+        "babylonjs-gui",
+        "babylonjs-flow-graph",
+        "babylonjs-node-render-graph",
+        "babylonjs-smart-filters"
+    ]
+}

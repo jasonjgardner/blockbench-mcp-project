@@ -38,6 +38,31 @@ __cline_mcp_settings.json__
 }
 ```
 
+## Babylon.js MCP Servers
+
+The workspace also configures the [Babylon.js MCP servers](https://doc.babylonjs.com/toolsAndResources/mcpServers/) (`@babylonjs/mcp-servers`, pinned to `9.26.2`). They build Babylon.js editor graphs that pair with Blockbench assets. For example, a Node Material can drive a Bedrock `texture_set` in Babylon, and a particle system can add effects to an exported model. See [docs/research/babylonjs-mcp-integration.md](./docs/research/babylonjs-mcp-integration.md) for workflows.
+
+| Server | Dispatcher | Default |
+|--------|------------|---------|
+| `babylonjs-node-material` | `nme` | on |
+| `babylonjs-node-geometry` | `nge` | on |
+| `babylonjs-node-particle` | `npe` | on |
+| `babylonjs-gui` | `gui` | opt-in |
+| `babylonjs-flow-graph` | `flow-graph` | opt-in |
+| `babylonjs-node-render-graph` | `nrge` | opt-in |
+| `babylonjs-smart-filters` | `smart-filters` | opt-in |
+
+- **Claude Code:** [`.mcp.json`](./.mcp.json) defines every server. [`.claude/settings.json`](./.claude/settings.json) turns the opt-in ones off; move a name from `disabledMcpjsonServers` to `enabledMcpjsonServers` to use it.
+- **OpenCode:** [`opencode.jsonc`](./opencode.jsonc). Set `enabled` per server.
+- **VS Code:** [`.vscode/mcp.json`](./.vscode/mcp.json) lists all seven. Stop the ones you don't need from the MCP server list, since each one adds 24–29 tools.
+
+Requirements and gotchas:
+
+- Node.js `^20.19`, `^22.13` or `^24`. Odd-numbered releases such as 23.x print an engine warning.
+- On Windows, if the client can't resolve `npx`, use `C:\Program Files\nodejs\npx.cmd` (or `cmd /c npx`) as the command.
+- Each graph server's live editor session listens on `localhost:3001` by default. Keep Blockbench's MCP port on `3000`.
+- `save_snippet` uploads the graph to the public Babylon.js Snippet Server. Use `export_*_json` with an `outputFile` for private work.
+
 ## Skills
 
 The [`skills/`](./skills) directory ships a set of Agent Skills that teach Claude (or any compatible client) how to drive the Blockbench MCP server productively. See [skills/README.md](./skills/README.md) for the full index.

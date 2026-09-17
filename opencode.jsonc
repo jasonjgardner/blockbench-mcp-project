@@ -5,6 +5,43 @@
             "url": "http://localhost:3000/bb-mcp",
             "type": "remote",
             "enabled": true
+        },
+        // Babylon.js editor graph servers (https://doc.babylonjs.com/toolsAndResources/mcpServers/).
+        // Asset servers pair with Blockbench models, textures and effects; the rest are opt-in.
+        "babylonjs-node-material": {
+            "type": "local",
+            "command": ["npx", "-y", "@babylonjs/mcp-servers@9.26.2", "nme"],
+            "enabled": true
+        },
+        "babylonjs-node-geometry": {
+            "type": "local",
+            "command": ["npx", "-y", "@babylonjs/mcp-servers@9.26.2", "nge"],
+            "enabled": true
+        },
+        "babylonjs-node-particle": {
+            "type": "local",
+            "command": ["npx", "-y", "@babylonjs/mcp-servers@9.26.2", "npe"],
+            "enabled": true
+        },
+        "babylonjs-gui": {
+            "type": "local",
+            "command": ["npx", "-y", "@babylonjs/mcp-servers@9.26.2", "gui"],
+            "enabled": false
+        },
+        "babylonjs-flow-graph": {
+            "type": "local",
+            "command": ["npx", "-y", "@babylonjs/mcp-servers@9.26.2", "flow-graph"],
+            "enabled": false
+        },
+        "babylonjs-node-render-graph": {
+            "type": "local",
+            "command": ["npx", "-y", "@babylonjs/mcp-servers@9.26.2", "nrge"],
+            "enabled": false
+        },
+        "babylonjs-smart-filters": {
+            "type": "local",
+            "command": ["npx", "-y", "@babylonjs/mcp-servers@9.26.2", "smart-filters"],
+            "enabled": false
         }
     }
 }

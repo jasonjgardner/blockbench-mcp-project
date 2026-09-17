@@ -1,49 +1,34 @@
 {
-    "servers": {
+    "mcpServers": {
         "blockbench": {
-            "url": "http://localhost:3000/bb-mcp",
-            "type": "http"
-        },
-        "filesystem": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@modelcontextprotocol/server-filesystem",
-                "${workspaceFolder}"
-            ]
+            "type": "http",
+            "url": "http://localhost:3000/bb-mcp"
         },
         "babylonjs-node-material": {
-            "type": "stdio",
             "command": "npx",
             "args": ["-y", "@babylonjs/mcp-servers@9.26.2", "nme"]
         },
         "babylonjs-node-geometry": {
-            "type": "stdio",
             "command": "npx",
             "args": ["-y", "@babylonjs/mcp-servers@9.26.2", "nge"]
         },
         "babylonjs-node-particle": {
-            "type": "stdio",
             "command": "npx",
             "args": ["-y", "@babylonjs/mcp-servers@9.26.2", "npe"]
         },
         "babylonjs-gui": {
-            "type": "stdio",
             "command": "npx",
             "args": ["-y", "@babylonjs/mcp-servers@9.26.2", "gui"]
         },
         "babylonjs-flow-graph": {
-            "type": "stdio",
             "command": "npx",
             "args": ["-y", "@babylonjs/mcp-servers@9.26.2", "flow-graph"]
         },
         "babylonjs-node-render-graph": {
-            "type": "stdio",
             "command": "npx",
             "args": ["-y", "@babylonjs/mcp-servers@9.26.2", "nrge"]
         },
         "babylonjs-smart-filters": {
-            "type": "stdio",
             "command": "npx",
             "args": ["-y", "@babylonjs/mcp-servers@9.26.2", "smart-filters"]
         }
