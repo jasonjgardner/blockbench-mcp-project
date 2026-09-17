@@ -18,17 +18,26 @@ Load this skill before creating, modifying, or exporting Blockbench content. For
 | Intent | Guidance |
 |---|---|
 | Cubes, meshes, groups, silhouette, topology | [Modeling](../blockbench-modeling/SKILL.md) |
+| Bedrock poles, cylinders, tubes, rings, and faceted round shapes | [Modeling](../blockbench-modeling/SKILL.md), then [Bedrock primitives](../blockbench-modeling/references/bedrock-primitives.md) |
 | UVs, pixel density, painting, layers | [Texturing](../blockbench-texturing/SKILL.md) |
+| Animated textures, sprite sheets, vertical flipbooks | [Flipbook textures](../blockbench-flipbook-textures/SKILL.md), which requires [GPT Image textures](../blockbench-gpt-image-textures/SKILL.md) for generated artwork |
 | Pivots, keyframes, timing, animation export | [Animation](../blockbench-animation/SKILL.md) |
 | Normal/height/MER materials | [PBR materials](../blockbench-pbr-materials/SKILL.md) |
+| Normal, height or MER maps derived from an existing color texture | [Albedo to normal](../blockbench-albedo-to-normal/SKILL.md), then [PBR materials](../blockbench-pbr-materials/SKILL.md) to assign them |
 | Hytale formats, attachments, stretch, visibility | [Hytale](../blockbench-hytale/SKILL.md), then applicable shared domains |
 | Armature deformation, display slots, Bedrock material instances | [MCP overview](../blockbench-mcp-overview/SKILL.md) and live schemas |
 
 ## Work at the Scale of the Request
 
+Before creating a new model or substantially redesigning its geometry, ask where the user's preference lies: **appearance/accuracy**, **performance (fewer elements/faces)**, or **a balance**. Ask for the destination when unknown, including Minecraft edition and block versus entity. Reuse an explicit preference already given; "high quality" or "HD textures" alone does not choose a geometry budget. Continue discovery and inspection while awaiting the answer, but settle the preference before detailed geometry or texture generation. Routine edits that preserve an established design do not need this question again.
+
+Use [appearance and performance planning](references/appearance-and-performance.md) to translate the answer into a working budget, choose geometry versus texture/PBR detail, and measure the result. Read it before multiplying repeated parts, optimizing a slow model, or adding hardware details such as screws, bolts, rivets, and other fasteners, which normally belong in albedo and supported PBR channels rather than in geometry. For Bedrock custom blocks using multiple materials or cutout panels, also read [material instances and texture delivery](references/bedrock-material-instances.md).
+
 For a new asset, establish proportions and silhouette before detailed geometry, UVs, texture detail, and final animation. For an existing asset, inspect and change the requested area without rebuilding successful work. Use reference images to identify shape, palette, material and intended viewing distance. Treat Minecraft and Hytale art direction as target-specific guidance, not universal restrictions on every Blockbench format.
 
-Choose verification that observes the changed behavior: inspect UV values and a mapped checker for UV edits; inspect a texture image and the rendered model after painting; preview several times and the loop seam for animation. A screenshot of the rest pose alone cannot verify a walk cycle. See the delivery reference for format-specific checks.
+Before assigning detailed materials or repeating mapped geometry, follow [UV scale and distortion guidance](../blockbench-texturing/references/uv-scale-and-distortion.md). Preserve face proportions and consistent material feature scale across different face sizes; do not stretch the same full atlas swatch over every face by default. Allow deliberate exceptions for uniform materials or designed effects, considering all PBR channels.
+
+Choose verification that observes the changed behavior: inspect UV values, effective pixels per model unit in both directions, and a mapped checker for UV edits; inspect a texture image and the rendered model after painting; preview several times and the loop seam for animation. A screenshot of the rest pose alone cannot verify a walk cycle. See the delivery reference for format-specific checks.
 
 ## Recovery and Delivery
 

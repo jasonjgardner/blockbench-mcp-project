@@ -52,6 +52,8 @@ The [`skills/`](./skills) directory ships a set of Agent Skills that teach Claud
 | [`blockbench-animation`](./skills/blockbench-animation) | Create animations, keyframes, bone rigs, and animation curves. |
 | [`blockbench-hytale`](./skills/blockbench-hytale) | Hytale-specific models and animations (attachments, shading modes, quads, visibility keyframes). Requires the Hytale Blockbench plugin. |
 | [`blockbench-gpt-image-textures`](./skills/blockbench-gpt-image-textures) | AI-generate textures with GPT Image 2.5 (Flare / Sunburst) on fal.ai, with the model's UV layout written into the prompt. Requires a `FAL_KEY`. |
+| [`blockbench-flipbook-textures`](./skills/blockbench-flipbook-textures) | Generate animated texture sheets with the GPT Image 2.5 texture skill, convert them to vertical flipbook PNGs with Pillow, and configure Blockbench/Minecraft playback. |
+| [`blockbench-albedo-to-normal`](./skills/blockbench-albedo-to-normal) | Derive height, normal and packed MER (metalness / emissive / roughness) maps from a color texture with PyPBR (Python) or vgpu + Dawn WebGPU (Node.js), optionally estimating height with Depth Anything V2. Use after `blockbench-gpt-image-textures` or hand painting. |
 | [`blockbench-development`](./skills/blockbench-development) | Build Blockbench plugins/extensions themselves — actions, dialogs, panels, menus, custom formats and codecs. |
 
 ### Install
@@ -65,5 +67,7 @@ npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill b
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-animation
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-hytale
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-gpt-image-textures
+npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-flipbook-textures
+npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-albedo-to-normal
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-development
 ```

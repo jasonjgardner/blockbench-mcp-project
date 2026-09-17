@@ -26,6 +26,7 @@ When a tool depends on editor state, use `list_modes` and `set_mode: mode_id="<r
 | Cube/mesh UVs, texture images, painting and layers | [Texturing](../blockbench-texturing/SKILL.md) |
 | Group rigs, keyframes, curves and timelines | [Animation](../blockbench-animation/SKILL.md) |
 | Normal/height/MER channel materials | [PBR materials](../blockbench-pbr-materials/SKILL.md) |
+| Generating normal/height/MER maps from a color texture (PyPBR or vgpu, Depth Anything) | [Albedo to normal](../blockbench-albedo-to-normal/SKILL.md) |
 | Hytale-specific formats, attachments and visibility | [Hytale](../blockbench-hytale/SKILL.md) |
 | Native armatures and vertex weights | Armature section below |
 | Java item/block display transforms | Display section below |
@@ -95,7 +96,7 @@ get_face_material_instances: cube_id="block_geo"
 set_face_material_instance: cube_id="block_geo", faces=["up"], material_name="top"
 ```
 
-The tools assign face names; they do not create the block's resource-pack material definitions. These material instances are separate from PBR texture groups. Inspect the geometry export and accompanying target configuration.
+The tools assign face names; they do not create the behavior-pack block components or resource-pack texture definitions. These material instances are separate from PBR texture groups and GPU instancing. Follow [material-instance and texture delivery](../blockbench-use/references/bedrock-material-instances.md) for multiple materials or cutout panels, and the [appearance/performance plan](../blockbench-use/references/appearance-and-performance.md) before using textures to replace repeated geometry. Entities use client-entity/render-controller bindings rather than this block component. Inspect the geometry export and accompanying target configuration.
 
 ## Recovery
 

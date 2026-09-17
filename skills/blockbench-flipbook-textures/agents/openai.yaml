@@ -1,0 +1,4 @@
+interface:
+  display_name: "Blockbench Flipbook Textures"
+  short_description: "Generate sprite sheets and assemble animated textures"
+  default_prompt: "Use $blockbench-flipbook-textures to generate a GPT Image 2.5 sprite sheet and convert it into a vertical Blockbench flipbook texture."

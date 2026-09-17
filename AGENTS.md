@@ -23,6 +23,14 @@ You can perform the following actions:
 
 Using the `from_geo_json` together with the `risky_eval` MCP tools opens up much more possibilities and may be more efficient for complex tasks. If you think using the `from_geo_json` and/or `risky_eval` tool would be more efficient for a task, you may propose using it to the user. If the user agrees, you may use the `from_geo_json` and/or `risky_eval` tool. If the user does not agree, you must use the standard workflow.
 
+## UV and Material Quality
+
+- Preserve material proportions and consistent visible detail scale across comparable surfaces. For HD or patterned materials, do not apply the same complete UV swatch to faces of different sizes/aspect ratios without checking the mapping.
+- Plan face-specific UV spans using actual surface dimensions and effective image pixels per UV unit. Check distortion within faces and density differences between faces; recheck after resizing geometry, changing textures, or converting formats.
+- Use proportionate atlas subregions, suitable trim strips, or target-supported repetition. Do not assume an atlas subregion tiles independently or add excessive geometry solely to fix mapping.
+- Allow deliberate stretching for uniform materials or intended effects, considering all PBR channels. Preserve authored exceptions rather than imposing equal density indiscriminately.
+- Follow [UV scale and distortion guidance](skills/blockbench-texturing/references/uv-scale-and-distortion.md). Verify with a temporary checker and the actual material at close and intended viewing distances before repetition and delivery; UV bounds alone are insufficient.
+
 ## Important Notes
 
 - Always use the Blockbench MCP API to perform actions

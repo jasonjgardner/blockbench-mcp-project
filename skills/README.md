@@ -16,6 +16,8 @@ Each subdirectory contains a `SKILL.md` with frontmatter (`name`, `description`)
 | [blockbench-animation](./blockbench-animation) | Create and manage animations. Use when animating 3D models, creating keyframes, managing bone rigs, editing animation curves, or working with animation timelines. Covers walk cycles, idle animations, combat animations, and complex multi-bone animations. |
 | [blockbench-hytale](./blockbench-hytale) | Create Hytale models and animations. Use when working with Hytale character/prop formats, creating attachments, setting shading modes, using quads, or animating with visibility keyframes. **Requires the Hytale Blockbench plugin to be installed.** |
 | [blockbench-gpt-image-textures](./blockbench-gpt-image-textures) | Generate texture atlases, skins and tiles with OpenAI GPT Image 2.5 (Flare or Sunburst) on fal.ai, writing the expected UV layout into the prompt. Ships scripts that turn `get_cube_uv` output into pixel regions, call the fal endpoints, and downscale the result to atlas size. **Requires a `FAL_KEY`.** |
+| [blockbench-flipbook-textures](./blockbench-flipbook-textures) | Create animated textures with the required GPT Image 2.5 texture skill, then convert sprite grids or horizontal sheets to vertical PNG strips. Includes a Pillow converter, APNG previews, and Blockbench/Java/Bedrock delivery guidance. |
+| [blockbench-albedo-to-normal](./blockbench-albedo-to-normal) | Derive height, normal and packed MER (metalness / emissive / roughness) maps from an albedo texture with PyPBR (Python) or vgpu + Dawn WebGPU (Node.js), optionally estimating height with Depth Anything V2 and inferring MER from the albedo plus the normal's curvature. Use after painting or AI-generating a color texture when a material needs normal, heightmap or MER channels. Ships scripts, WGSL kernels, palette overrides and validation reports. |
 | [blockbench-development](./blockbench-development) | Blockbench **plugin/extension** development (not MCP usage). Use when creating, modifying, or debugging JavaScript plugins for Blockbench including actions, dialogs, panels, menus, toolbars, model manipulation, animation APIs, and custom formats/codecs. The skill itself is named `blockbench-plugins` in its frontmatter. |
 
 ## Loading Order
@@ -25,8 +27,10 @@ Process skills first, implementation skills second:
 1. `blockbench-use` — orchestrator, always first when touching the 3D scene
 2. `blockbench-mcp-overview` — when discovering capabilities or crossing specialized format workflows
 3. Domain skill(s) — `blockbench-modeling`, `blockbench-texturing`, `blockbench-pbr-materials`, `blockbench-animation`, or `blockbench-hytale`
-4. `blockbench-gpt-image-textures` — after `blockbench-texturing`, when a texture should be AI-generated from the existing UV layout
-5. `blockbench-development` — only when authoring a Blockbench plugin (not when using MCP)
+4. `blockbench-flipbook-textures` — after `blockbench-texturing`, for animated texture sheets; requires `blockbench-gpt-image-textures` when generating the artwork
+5. `blockbench-gpt-image-textures` — after `blockbench-texturing`, when a texture should be AI-generated from the existing UV layout or a flipbook frame plan
+6. `blockbench-albedo-to-normal` — after a color texture exists (painted or generated), when `blockbench-pbr-materials` needs normal, height or MER channels derived from it
+7. `blockbench-development` — only when authoring a Blockbench plugin (not when using MCP)
 
 ## Install
 
@@ -41,6 +45,8 @@ npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill b
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-animation
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-hytale
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-gpt-image-textures
+npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-flipbook-textures
+npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-albedo-to-normal
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-development
 ```
 

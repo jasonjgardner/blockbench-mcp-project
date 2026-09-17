@@ -1,6 +1,6 @@
 # Writing the UV layout into a GPT Image 2.5 prompt
 
-Contents: coordinate conventions · prompt template · describing box-UV nets · per-face rectangles · mesh islands · shared and mirrored regions · style directives by target · worked examples (Bedrock entity, Java block tile, Generic Model atlas) · anti-patterns · iteration with the edit endpoint.
+Contents: coordinate conventions · material scale · prompt template · describing box-UV nets · per-face rectangles · mesh islands · shared and mirrored regions · style directives by target · worked examples (Bedrock entity, Java block tile, Generic Model atlas) · anti-patterns · iteration with the edit endpoint.
 
 ## Coordinate conventions
 
@@ -11,6 +11,14 @@ State these in the prompt once, under `canvas`:
 - `texel_scale` is the size of one texture pixel in the generated image. For a 64×64 atlas at 1024×1024, one texel is a 16×16 px block.
 
 Blockbench UV rectangles are in logical UV units. `scripts/uv_layout_prompt.mjs` converts them: `texel = uv × frame_size / uv_size`, then `px = texel × texel_scale`. Never hand-copy UV units into the prompt as pixels.
+
+## Preserve material scale
+
+Apply [UV scale and distortion guidance](../../blockbench-texturing/references/uv-scale-and-distortion.md) before generating the prompt. Confirm that the UV footprint is proportionate to the surface and that comparable faces sample a consistent number of final texture pixels per model unit. The script converts coordinates; it does not validate that relationship. Its generation `texel_scale` and a request for a "256x base" do not establish material density.
+
+Keep computed rectangles unchanged, and add surface coverage, direction, and feature size to each relevant `paint` description. For example, at four final texture pixels per model unit, a face covering 32×4 model units needs 128×16 texture pixels. Describe a two-pixel grain feature as covering half a model unit; at a generation upscale of eight, that feature occupies 16 generated pixels. A 64×4 face at the same density needs 256×16 texture pixels and approximately twice as many grain repetitions along its length. Use the model's actual dimensions and chosen material scale, not these example values by default.
+
+Match authored feature sizes across regions and PBR channels. Equal UV density can still look inconsistent if the generator paints coarse grain in one region and fine grain in another. Intentional uniform fills, directional effects, or resolution allocations may differ; describe the exception without stretching detailed channels accidentally.
 
 ## Prompt template
 
@@ -78,6 +86,8 @@ Per-face UV cubes give six independent rectangles that may overlap, rotate or re
 
 Blockbench formats often map left/right limbs to the same pixels. The script lists these under `shared_regions`. Put one region in `regions` and reference the rest in `shared`; do not list the same rectangle twice with different content or the model will average them.
 
+Sharing a material does not require sharing an identical UV rectangle. Use proportionate subregions or suitable trim strips for differently sized faces, and preserve those separate footprints in the prompt. Reuse a complete rectangle when mapped surface dimensions are compatible, accounting for rotation, or when its scale difference is intentional. Group descriptions for readability without collapsing distinct face layouts into one stretched swatch. Verify destination tiling support before planning repeats; an atlas subregion does not wrap independently.
+
 ## Style directives by target
 
 | Target | Style phrasing |
@@ -135,6 +145,9 @@ A single-face tile has one region covering the whole canvas. Prompt for tiling e
 - Asking for "a UV map" or "UV template": the model draws colored placeholder squares with labels.
 - Requesting outlines, labels or grid lines "to help alignment"; they end up in the texture.
 - Copying UV units as pixels, or forgetting `frame_size / uv_size` in formats where they differ.
+- Applying the same full swatch to every face regardless of dimensions, or fitting each face independently to generated material bounds without preserving proportions and density.
+- Painting the same number of grain features into regions covering different surface sizes, making the material appear coarser on larger parts.
+- Treating generation `texel_scale`, a higher image resolution, or UV bounds checks as proof of consistent material scale.
 - Generating at the atlas's native size; fal rejects anything under 655,360 pixels.
 
 ## Iterating with the edit endpoint
@@ -143,3 +156,5 @@ A single-face tile has one region covering the whole canvas. Prompt for tiling e
 2. Build a mask: white over the regions to redo, black elsewhere, same canvas size.
 3. POST to `/edit` with `image_urls: [previous]`, `mask_url`, and a prompt that repeats the `canvas` block plus only the regions being changed, prefixed "Repaint only the masked regions; keep everything else pixel-identical".
 4. Re-run the downscale and re-import under a new texture name, then `apply_texture` and compare screenshots before replacing the old texture.
+
+Keep the planned UV footprints during cleanup. Repaint or extend drifting material boundaries into those footprints; any necessary UV resizing must retain the intended proportions and density and keep PBR channels aligned. Recheck both a temporary checker and the actual material after the edit.

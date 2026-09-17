@@ -7,11 +7,27 @@ description: Create and paint textures in Blockbench using MCP tools. Use when c
 
 Create and paint textures for 3D models using Blockbench MCP tools.
 
+For animated texture sheets, use [flipbook textures](../blockbench-flipbook-textures/SKILL.md): generate artwork through the GPT Image 2.5 texture skill, convert measured sprite cells to a vertical strip, and configure one-frame UV dimensions and playback metadata.
+
 ## Plan UVs Before Texture Detail
+
+Carry forward the user's [appearance/performance preference](../blockbench-use/references/appearance-and-performance.md). For performance or balanced designs, allocate shared UV tiles for repeated braces/infills, seat ribs, seams, and mounting details before adding geometry. Paint small fasteners onto existing supporting faces; add aligned [PBR maps](../blockbench-pbr-materials/SKILL.md) when the target supports them. Reusing UVs alone does not reduce the geometry already present.
 
 Inspect the target's box/per-face UV mode and effective UV dimensions before painting. UV units can differ from image pixels; formats with `per_texture_uv_size` use each face's texture dimensions. Preserve deliberate mirrored/repeated UV overlaps, and allocate unique space for asymmetric detail. Preview a checker or directional mark for stretching, orientation and seams. Match pixel density to the user's style and viewing distance; Minecraft pixel-art rules do not apply to every format. See [format and delivery guidance](../blockbench-use/references/formats-and-delivery.md).
 
 Blockbench's native texture-template workflow can lay out UVs, but `create_texture` creates/imports an image and does not generate that layout. `auto_uv_mesh` maps faces and does not pack islands. For packed layouts, use a tool actually advertised by the running bundle or the native template/UV workflow; preserve an existing painted atlas before rearranging it.
+
+### Preserve UV Proportions and Material Scale
+
+Read [UV scale and distortion guidance](references/uv-scale-and-distortion.md) before applying detailed materials, sharing swatches across different face sizes, or correcting stretched textures. Compute sampled image pixels per model unit along both face directions using the effective texture's frame and logical UV sizes. A shared material normally needs proportionate UV footprints, not the same full rectangle on every face.
+
+Check both local stretching and scale differences between parts with a reversible checker, then inspect the actual grain/pattern. Prefer proportionate subregions, appropriate trim strips, or verified target-supported tiling. A bounded UV rectangle or larger image does not prove correct scale. Keep deliberate stretching for uniform materials or designed effects; a plain albedo with detailed PBR channels still needs the scale check.
+
+### Replace Repeated Geometry with a UV Tile
+
+Use a small number of format-supported panels for repeated rail infills or X braces when the chosen viewing distance tolerates flat detail. Map the pattern onto those panels and keep the holes transparent. Reserve opaque regions for solid surfaces and pad atlas islands without filling intentional holes. Check edge-on views, both sides, filtering/mipmaps, and distant views for disappearing bars, halos, or texture bleed before removing the replaced geometry. Test transparent layers for overdraw; one cutout panel per bar defeats the reduction.
+
+Choose the target's alpha-test/culling behavior explicitly; double-sided rendering and translucent blending have costs. Multiple textures are permitted when the format supports them, but importing images does not complete runtime material wiring. For Bedrock custom blocks, follow [material-instance and texture delivery](../blockbench-use/references/bedrock-material-instances.md); entity bindings use a different workflow.
 
 ### Generate a Native Texture Template
 

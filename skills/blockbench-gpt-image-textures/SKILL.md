@@ -20,9 +20,17 @@ Both accept the same parameters and share `/edit` variants that take reference i
 
 ## Workflow
 
+### 0. Settle the geometry/detail tradeoff
+
+For a new model or substantial redesign, resolve the appearance/accuracy, performance, or balanced preference through [blockbench-use](../blockbench-use/SKILL.md) before committing geometry or generating an atlas. Apply [appearance and performance planning](../blockbench-use/references/appearance-and-performance.md): establish the simplified target geometry and shared UV tiles first. An HD image request is not permission to multiply tiny detail cubes.
+
+For braces or railing infills represented by panels, describe the repeated pattern and transparent holes inside each measured UV region, not just transparency outside the atlas islands. For fasteners represented on existing faces, include their albedo marks in those regions and use the [PBR workflow](../blockbench-pbr-materials/SKILL.md) for supported normal/height/MER detail. Verify channel data separately; a color atlas is not a PBR map. Confirm [Bedrock material bindings](../blockbench-use/references/bedrock-material-instances.md) when cutouts or multiple materials are intended for a custom block.
+
 ### 1. Establish the UV layout first
 
 The atlas layout must exist in Blockbench before prompting. Run `get_capabilities: include_tools=true`, then `list_textures`. If no texture or UVs exist, generate a native texture template as described in the texturing skill, then continue. Do not invent a layout in the prompt that the model does not have.
+
+Audit that layout using [UV scale and distortion guidance](../blockbench-texturing/references/uv-scale-and-distortion.md) before generation. Compare surface dimensions with sampled image pixels along both face directions, using the effective frame and logical UV sizes. Correct unintended stretching and inconsistent material scale first; an image generator cannot repair a distorted mapping just by painting inside its rectangles. Reusing the same complete swatch is appropriate only for compatible face dimensions or deliberate exceptions.
 
 Collect the layout:
 
@@ -50,6 +58,8 @@ node scripts/uv_layout_prompt.mjs inspection.json --format text   # human-readab
 
 Output includes `image_size` (pass to fal unchanged), `canvas.texel_scale`, one region per face with `px` and `texels` rectangles, and `shared_regions` for faces that reuse the same pixels. An exit code of 2 means the atlas aspect exceeds 3:1; generate a padded canvas and crop with `--crop` in step 5, or split the atlas.
 
+`canvas.texel_scale` describes the generation upscale, not material density on the model. Collect surface dimensions separately from the geometry; the region list alone cannot establish pixels per model unit or detect local mesh distortion.
+
 ### 3. Write the prompt with the layout inside it
 
 Structure the prompt as JSON. The `layout` block is mandatory and comes straight from step 2. Read [references/uv-layout-prompting.md](references/uv-layout-prompting.md) for the full template, region-description rules and worked examples. Minimum shape:
@@ -75,6 +85,8 @@ Structure the prompt as JSON. The `layout` block is mandatory and comes straight
 ```
 
 Describe what each face shows, not the 3D scene. Name regions by cube and direction, keep the pixel rectangles exactly as computed, and mention rotation or mirroring the script reported.
+
+For detailed materials, describe each region's surface coverage in model units, grain direction, and consistent feature size across related regions. Larger surfaces normally show more repetitions of the same grain or pattern. Preserve individual UV footprints when grouping descriptions by material; do not map one full material rectangle onto every differently sized face. Coordinate these choices with all PBR channels.
 
 ### 4. Generate
 
@@ -104,7 +116,11 @@ get_texture: texture="alpaca"
 capture_screenshot
 ```
 
-In formats with `per_texture_uv_size`, pass `uv_width`/`uv_height` to `create_texture` matching the original atlas `uv_size`. Check every face on the rendered model: regions drift, colours bleed across seams, and box-UV mirrored faces are often flipped. Fix small errors with the texturing skill's paint tools instead of regenerating. For larger errors, iterate through the `/edit` endpoint with the previous output URL and a prompt naming only the regions to change.
+In formats with `per_texture_uv_size`, pass `uv_width`/`uv_height` to `create_texture` matching the original atlas `uv_size`. Check the rendered model for region drift, seam bleeding, mirrored content, and inconsistent grain or relief scale. Use a temporary checker to distinguish mapping distortion from inconsistent detail painted into the atlas; inspect long/short faces and sides/ends at close and intended viewing distances.
+
+When generated boundaries drift, repaint or extend the material to fit the planned UV footprint. Avoid independently fitting each face's UV rectangle to the generated content bounds: that can alter both aspect ratio and density. If UV edits are necessary, preserve proportions and intended density, update corresponding PBR regions, and repeat the scale checks. Fix small image errors with the texturing skill's paint tools. For larger errors, iterate through the `/edit` endpoint with the previous output URL and a prompt naming only the regions to change.
+
+Once the color atlas is final, derive its normal, height and MER maps with [albedo to normal](../blockbench-albedo-to-normal/SKILL.md) rather than generating PBR channels with the image model; run it on the downscaled atlas so the maps share the texel grid.
 
 ## What to expect
 

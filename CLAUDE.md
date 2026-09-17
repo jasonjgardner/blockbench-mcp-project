@@ -55,7 +55,7 @@ This project contains static asset files with no build process, testing framewor
 - All geometry files use Minecraft Bedrock format specifications
 - Texture sets support PBR rendering with separate maps for different material properties
 - File paths and identifiers in geometry files must match the directory structure
-- UV coordinates in geometry files correspond to texture dimensions
+- Preserve UV proportions and consistent material detail scale using [UV and material quality instructions](AGENTS.md#uv-and-material-quality) and the [UV scale guide](skills/blockbench-texturing/references/uv-scale-and-distortion.md). Account for logical UV dimensions versus bitmap resolution; check differently sized faces before reusing a swatch. Intentional stretching remains appropriate for uniform materials or designed effects.
 
 ## License
 

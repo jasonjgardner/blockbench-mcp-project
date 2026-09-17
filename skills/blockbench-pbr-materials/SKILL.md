@@ -9,6 +9,16 @@ Use `get_capabilities` to inspect the active project and registered format featu
 
 Preserve the target's material convention. Bedrock MER is not glTF metallic/roughness or an arbitrary ORM packing. A successful Blockbench preview does not prove that a chosen exporter or game supports the material. Align channel maps to the color texture's UV layout and inspect their dimensions before painting. Shared UV and delivery checks are in [format and delivery guidance](../blockbench-use/references/formats-and-delivery.md).
 
+## Use PBR for Surface Detail
+
+Follow the selected [appearance/performance preference](../blockbench-use/references/appearance-and-performance.md). Use aligned normal or height detail for small fasteners, rivets, welds, grooves, and shallow seat ribs instead of multiplying tiny cubes. Add regional metalness and roughness variation in MER; a shared atlas can represent aluminum, rubber, and painted markings without a separate material for each visible surface. Author valid channel data rather than treating an albedo image as a normal/MER map. To derive normal, height or MER maps from an existing color texture, use [albedo to normal](../blockbench-albedo-to-normal/SKILL.md) and import the results with `create_texture` before assigning them here.
+
+Normal/height shading does not create silhouette thickness, open railing holes, or collision. Preserve geometry where these matter. Confirm the destination's rendering mode actually uses PBR, retain a readable color-only fallback, and account for the memory cost of extra maps. Bedrock's Classic pipeline uses the color layer; normal and heightmap are mutually exclusive texture-set layers. See the [official texture-set specification](https://mojang.github.io/bedrock-samples/Texture%20Sets.html).
+
+Use [UV scale and distortion guidance](../blockbench-texturing/references/uv-scale-and-distortion.md) to keep surface relief and material grain at a consistent scale across parts. Align corresponding regions across every channel even when image resolutions differ. UV or atlas edits must preserve those correspondences; verify tangent-space normal orientation after rotation/mirroring. A solid color does not justify stretching a detailed normal or roughness map.
+
+PBR texture groups and `.texture_set.json` describe surface channels. They do not assign Bedrock block faces to render materials. Use [Bedrock material instances](../blockbench-use/references/bedrock-material-instances.md) for those bindings and accompanying pack files.
+
 ## Tools and Parameter Names
 
 | Tool | Parameters used in this workflow |
