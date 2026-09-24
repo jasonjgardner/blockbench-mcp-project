@@ -3,6 +3,16 @@
     "blockbench": {
       "type": "http",
       "url": "http://localhost:3000/bb-mcp"
+    },
+    "blockbench-headless": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "github:jasonjgardner/blockbench-mcp-plugin#v1.9.1",
+        "--root",
+        "."
+      ]
     }
   }
 }

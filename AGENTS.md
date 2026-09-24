@@ -9,7 +9,7 @@ MCP server is developed separately in `jasonjgardner/blockbench-mcp-plugin`.
 - `.agents/plugins/marketplace.json`: Codex marketplace catalog.
 - `.claude-plugin/marketplace.json`: Claude Code marketplace catalog.
 - `plugins/blockbench-mcp/`: the complete, checked-in plugin for both clients.
-- `plugins/blockbench-mcp/skills/`: the seven canonical MCP skills on this branch.
+- `plugins/blockbench-mcp/skills/`: the eight canonical MCP skills on this branch.
 - `skills/README.md`: skill index; `skills/blockbench-development/` is a separate
   developer skill outside the published plugin.
 - `build/`: Bun validation and optional ZIP packaging, with OS compression tools.
@@ -19,9 +19,14 @@ MCP server is developed separately in `jasonjgardner/blockbench-mcp-plugin`.
 ## Maintaining the plugin
 
 Edit the published skills directly under `plugins/blockbench-mcp/skills/`. Keep
-one tracked source for each of the seven MCP skills on this branch. Both
+one tracked source for each of the eight MCP skills on this branch. Both
 marketplace catalogs must point to `./plugins/blockbench-mcp`; installations read
 that directory directly and must not depend on generated artifacts.
+
+`plugins/blockbench-mcp/.mcp.json` registers the desktop HTTP server and the
+`blockbench-headless` stdio server. Keep the headless package pinned to a released
+tag of `jasonjgardner/blockbench-mcp-plugin` (headless mode ships from 1.9) and
+keep `--root` in its arguments; the checker enforces both.
 
 Keep the version in `package.json` and both client manifests aligned. Preserve the
 Apache-2.0 skill license and GPL-3.0-only notices for the packaging metadata.
@@ -50,7 +55,8 @@ claude --plugin-dir ./plugins/blockbench-mcp
 ## Working in Blockbench
 
 For modeling, texturing, animation, or exports, load the packaged `blockbench-use`
-skill and relevant domain skills before editing the scene. Discover the tools
+skill and relevant domain skills before editing the scene. Use `blockbench-headless`
+for `.bbmodel` files on disk or parallel agents. Discover the tools
 exposed by the current MCP client and use their registered names. Inspect the
 active project and format, preserve checkpoints for risky edits, and verify the
 result with available inspection or screenshot tools.

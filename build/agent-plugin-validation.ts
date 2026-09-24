@@ -15,7 +15,7 @@ export const PLUGIN_ROOT = resolve(REPOSITORY_ROOT, "plugins", PLUGIN_NAME);
 /** Absolute release directory for the ZIP archive and its SHA-256 sidecar. */
 export const OUTPUT_ROOT = resolve(REPOSITORY_ROOT, "artifacts", "agent-plugins");
 
-/** The seven published skills; each name must match its directory and YAML metadata. */
+/** The eight published skills; each name must match its directory and YAML metadata. */
 export const SKILL_NAMES = [
   "blockbench-use",
   "blockbench-mcp-overview",
@@ -24,6 +24,7 @@ export const SKILL_NAMES = [
   "blockbench-pbr-materials",
   "blockbench-animation",
   "blockbench-hytale",
+  "blockbench-headless",
 ] as const;
 
 /**
@@ -125,12 +126,11 @@ async function validateComponentPaths(manifest: Record<string, unknown>, label: 
   }));
 }
 
-async function validateMcp(): Promise<void> {
-  const servers = (await readJson(resolve(PLUGIN_ROOT, ".mcp.json")))["mcpServers"];
-  if (!isRecord(servers) || Object.keys(servers).length !== 1 || !("blockbench" in servers)) {
-    throw new Error(".mcp.json: expected exactly the 'blockbench' MCP server");
-  }
-  const server = servers["blockbench"];
+/** Pinned launcher package for the headless server; keep it on a released tag so installs are reproducible. */
+export const HEADLESS_PACKAGE = /^github:jasonjgardner\/blockbench-mcp-plugin#v\d+\.\d+\.\d+$/;
+
+/** Confirm the desktop connection is an HTTP loopback URL with an explicit port and endpoint. */
+function validateDesktopServer(server: unknown): void {
   if (!isRecord(server) || server["type"] !== "http") {
     throw new Error(".mcp.json: blockbench must use the 'http' transport");
   }
@@ -143,6 +143,33 @@ async function validateMcp(): Promise<void> {
     || url.username !== "" || url.password !== "" || url.search !== "" || url.hash !== "") {
     throw new Error(".mcp.json: use an HTTP loopback URL with an explicit port and endpoint");
   }
+}
+
+/** Confirm the headless server is a pinned npx stdio launch that always names a sandbox root. */
+function validateHeadlessServer(server: unknown): void {
+  if (!isRecord(server) || server["type"] !== "stdio" || server["command"] !== "npx") {
+    throw new Error(".mcp.json: blockbench-headless must be a 'stdio' server started with 'npx'");
+  }
+  const args: unknown = server["args"];
+  if (!Array.isArray(args) || !args.every((arg): arg is string => typeof arg === "string")) {
+    throw new Error(".mcp.json: blockbench-headless.args must be a list of strings");
+  }
+  if (!args.includes("-y") || !args.some(arg => HEADLESS_PACKAGE.test(arg))) {
+    throw new Error(".mcp.json: blockbench-headless must run '-y' with the github:jasonjgardner/blockbench-mcp-plugin#v<version> package");
+  }
+  const rootIndex = args.indexOf("--root");
+  if (rootIndex === -1 || !args[rootIndex + 1]) {
+    throw new Error(".mcp.json: blockbench-headless must pass '--root <dir>'; the server refuses to start without a sandbox root");
+  }
+}
+
+async function validateMcp(): Promise<void> {
+  const servers = (await readJson(resolve(PLUGIN_ROOT, ".mcp.json")))["mcpServers"];
+  if (!isRecord(servers) || Object.keys(servers).toSorted().join() !== "blockbench,blockbench-headless") {
+    throw new Error(".mcp.json: expected exactly the 'blockbench' and 'blockbench-headless' MCP servers");
+  }
+  validateDesktopServer(servers["blockbench"]);
+  validateHeadlessServer(servers["blockbench-headless"]);
 }
 
 async function validateSkillNames(): Promise<void> {
@@ -233,8 +260,8 @@ async function validateMarketplaces(): Promise<void> {
 }
 
 /**
- * Validate every allowed source, both client manifests, the loopback MCP endpoint,
- * skill names, and packaged Markdown destinations before creating release files.
+ * Validate every allowed source, both client manifests, the desktop and headless MCP
+ * servers, skill names, and packaged Markdown destinations before creating release files.
  *
  * @returns The semantic version shared by package.json and both client manifests.
  * @throws When a required file is missing, a path escapes the package or traverses

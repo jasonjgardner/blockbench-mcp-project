@@ -1,6 +1,6 @@
 # Blockbench MCP Skills
 
-On the `codex` branch, the seven published MCP skills live in the checked-in
+On the `codex` branch, the eight published MCP skills live in the checked-in
 plugin at `plugins/blockbench-mcp/skills/`. Both Codex and Claude Code load those
 same files. The root `skills/` directory retains this index and the separate
 Blockbench developer skill.
@@ -16,10 +16,11 @@ Blockbench developer skill.
 | [blockbench-pbr-materials](../plugins/blockbench-mcp/skills/blockbench-pbr-materials/SKILL.md) | Work with normal, height, and MER material channels. |
 | [blockbench-animation](../plugins/blockbench-mcp/skills/blockbench-animation/SKILL.md) | Rig models and edit animations and keyframes. |
 | [blockbench-hytale](../plugins/blockbench-mcp/skills/blockbench-hytale/SKILL.md) | Use Hytale model, animation, and attachment workflows; requires the Hytale Blockbench plugin. |
+| [blockbench-headless](../plugins/blockbench-mcp/skills/blockbench-headless/SKILL.md) | Build, validate, convert, and render `.bbmodel` files on disk with the headless server; parallel agents, particle effects, web-app links. |
 
 ## Install
 
-The marketplace installs the plugin and all seven skills without a build.
+The marketplace installs the plugin and all eight skills without a build.
 
 For Codex:
 
@@ -43,7 +44,7 @@ connection and a first inspection request.
 1. Load `blockbench-use` before calls that create, modify, or export model content.
 2. Load `blockbench-mcp-overview` when discovering capabilities or planning work
    across domains.
-3. Load the relevant modeling, texturing, PBR, animation, or Hytale skills through
+3. Load the relevant modeling, texturing, PBR, animation, Hytale, or headless skills through
    the sibling links in `blockbench-use`.
 
 Tool prefixes vary between clients. The skills use semantic tool names and direct
@@ -53,7 +54,7 @@ agents to discover the registered tools available in the current session.
 
 [blockbench-development](blockbench-development/SKILL.md) covers writing Blockbench
 JavaScript plugins, custom formats, and codecs. Its frontmatter name is
-`blockbench-plugins`. It is maintained separately from the seven MCP usage skills
+`blockbench-plugins`. It is maintained separately from the eight MCP usage skills
 and is not included in the marketplace plugin.
 
 The [main branch](https://github.com/jasonjgardner/blockbench-mcp-project/tree/main)

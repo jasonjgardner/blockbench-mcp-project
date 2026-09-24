@@ -1,8 +1,9 @@
 # Blockbench MCP for Codex and Claude Code
 
 The `codex` branch is the plugin marketplace for connecting your coding agent to
-Blockbench desktop. It includes the MCP connection and seven skills for modeling,
-texturing, animation, PBR materials, and Hytale workflows. The complete plugin is
+Blockbench desktop or to the headless `.bbmodel` server. It includes both MCP
+connections and eight skills for modeling, texturing, animation, PBR materials,
+Hytale, and headless file workflows. The complete plugin is
 checked in at [`plugins/blockbench-mcp/`](plugins/blockbench-mcp/README.md), so
 installation does not require a build.
 
@@ -49,13 +50,23 @@ In Claude Code, check `/mcp` and try:
 /blockbench-mcp:blockbench-use Inspect my open model and summarize its format and contents.
 ```
 
+## Headless server
+
+The plugin also registers `blockbench-headless`, a stdio MCP server that edits,
+validates, and renders `.bbmodel` files without Blockbench, so several agents can
+work in parallel. It starts through `npx` (Node only) with `--root .`, which limits
+it to the folder your client started in. Load the `blockbench-headless` skill to use
+it. Rendering needs Node 23.6+ and a GPU. See the
+[plugin README](plugins/blockbench-mcp/README.md#headless-server) for the sandbox
+root, Windows, and registration options.
+
 The [plugin README](plugins/blockbench-mcp/README.md) covers connection settings,
 skills, and troubleshooting. The desktop MCP server is maintained in the separate
 [Blockbench MCP plugin repository](https://github.com/jasonjgardner/blockbench-mcp-plugin).
 
 ## Maintain or package the plugin
 
-The seven published MCP skills live in `plugins/blockbench-mcp/skills/`. Edit those
+The eight published MCP skills live in `plugins/blockbench-mcp/skills/`. Edit those
 files directly; they are the source loaded by both clients. See the
 [skill index](skills/README.md) for the included skills and the separate developer
 skill.

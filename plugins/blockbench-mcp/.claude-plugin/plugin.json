@@ -1,7 +1,7 @@
 {
   "name": "blockbench-mcp",
-  "version": "1.8.1",
-  "description": "Create, texture, and animate Blockbench models with a local MCP connection and seven modeling skills.",
+  "version": "1.9.1",
+  "description": "Create, texture, animate, validate, and render Blockbench models through the desktop MCP connection or the headless .bbmodel server, with eight skills.",
   "author": {
     "name": "Jason J. Gardner",
     "url": "https://github.com/jasonjgardner"
@@ -9,5 +9,5 @@
   "homepage": "https://github.com/jasonjgardner/blockbench-mcp-project/tree/codex",
   "repository": "https://github.com/jasonjgardner/blockbench-mcp-project",
   "license": "GPL-3.0-only AND Apache-2.0",
-  "keywords": ["blockbench", "mcp", "3d-modeling", "minecraft", "hytale", "animation"]
+  "keywords": ["blockbench", "mcp", "3d-modeling", "minecraft", "hytale", "animation", "headless"]
 }

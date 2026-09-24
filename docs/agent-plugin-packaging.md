@@ -1,13 +1,15 @@
 # Packaging the Codex and Claude Code plugin
 
 The `codex` branch contains the marketplace catalogs and a complete plugin at
-[`plugins/blockbench-mcp/`](../plugins/blockbench-mcp/README.md). Its seven MCP
+[`plugins/blockbench-mcp/`](../plugins/blockbench-mcp/README.md). Its eight MCP
 skills are checked in under `plugins/blockbench-mcp/skills/` and loaded directly
 by both clients. Marketplace installation requires no build.
 
 The desktop MCP server is maintained separately in the
 [Blockbench MCP plugin repository](https://github.com/jasonjgardner/blockbench-mcp-plugin).
-The agent plugin connects to that server running inside Blockbench desktop.
+The agent plugin connects to that server running inside Blockbench desktop, and
+also registers that repository's headless `.bbmodel` server, which `npx` runs from
+GitHub at a pinned release tag. Nothing from that repository is bundled.
 
 ## Install from the marketplace
 
@@ -70,19 +72,20 @@ The build writes:
 - `artifacts/agent-plugins/blockbench-mcp-<version>.zip.sha256`: the archive checksum.
 
 Only the explicit package file list is copied, including both client manifests,
-the shared MCP connection, seven skills, licenses, and icon. Generated output is
+the shared MCP configuration, eight skills, licenses, and icon. Generated output is
 ignored by Git. CI validates and builds the package for pushes and pull requests
 targeting `codex`, then uploads the ZIP and checksum as an artifact.
 
 The checker verifies manifest version agreement with `package.json`, required
-files, the shared HTTP connection, skill names, and packaged documentation links.
+files, the desktop HTTP connection, the pinned headless `npx` stdio server with its
+`--root` argument, skill names, and packaged documentation links.
 Native client loading is a separate check. Building a ZIP does not install the
 plugin or change client profiles.
 
 ## Maintain the plugin
 
 Edit the published MCP skills directly in `plugins/blockbench-mcp/skills/`. Keep
-these as the only source for the seven skills on this branch. The root
+these as the only source for the eight skills on this branch. The root
 `skills/README.md` links to them; `skills/blockbench-development/` remains a
 separate developer skill outside the plugin's file list.
 
@@ -96,7 +99,9 @@ Preserve the Apache-2.0 skill license and the existing GPL-3.0-only notices for 
 packaging metadata. Use the supplied `assets/plugin-logo.png` for the plugin icon
 and logo. Keep the versions in `package.json` and both plugin
 manifests aligned; these describe the agent package release, while the desktop
-server is versioned separately.
+server is versioned separately. When the server repository releases a version that
+changes the headless tools or options, update the pinned tag in `.mcp.json`, the
+blockbench-headless skill, and the README together.
 
 After changing package sources, run `bun run plugins:check` and
 `bun run plugins:package`, then check discovery in both clients with Blockbench

@@ -1,6 +1,6 @@
 ---
 name: blockbench-mcp-overview
-description: Overview of the Blockbench MCP server tools, resources, and prompts. Use to understand the full MCP capability set, learn how tools work together, or when starting a new Blockbench project. Covers all domains (modeling, animation, texturing, PBR, UI, camera) and their MCP interfaces.
+description: Overview of the Blockbench MCP server tools, resources, and prompts. Use to understand the full MCP capability set, learn how tools work together, or when starting a new Blockbench project. Covers all domains (modeling, animation, texturing, PBR, particles, UI, camera) and their MCP interfaces, for both the desktop server and the headless .bbmodel server.
 license: Apache-2.0
 ---
 
@@ -17,6 +17,15 @@ An MCP server that exposes Blockbench functionality to AI agents through:
 - **Resources**: Read-only data endpoints for model information
 - **Prompts**: Reusable guidance for specific workflows
 
+## Two servers
+
+| Server | Registered as | Works on | Tools |
+|---|---|---|---|
+| Desktop | `blockbench` (`http://localhost:3000/bb-mcp`) | The project open in the Blockbench app | Everything in the categories below |
+| Headless | `blockbench-headless` (stdio, `npx`) | `.bbmodel` files in a `--root` folder, no app needed | `bbmodel_*` and `blockbench_launch`; see [Blockbench headless](../blockbench-headless/SKILL.md) |
+
+Use desktop for the user's live model and interactive work; use headless for file-based, parallel, or app-less work such as validation, rendering, and export. Either server may be missing in a session: check which tools the client exposes before planning.
+
 ## Tool Categories
 
 | Domain | Tools | Purpose |
@@ -32,6 +41,7 @@ An MCP server that exposes Blockbench functionality to AI agents through:
 | Import | 1 | GeoJSON import |
 | Mesh | 11 | Spheres, cylinders, extrusion, vertices |
 | Paint | 12 | Brushes, fill, shapes, layers |
+| Particles | 6 | Bedrock particle effects: `list_particle_presets`, `create_particle_effect`, `update_particle_effect`, `list_particle_effects`, `manage_particle_keyframes`, `export_particle_pack` |
 | Texture | 13 | Textures, PBR materials |
 | UI | 4 | Actions, evaluation, dialogs |
 | UV | 3 | UV mapping |
@@ -272,6 +282,7 @@ Tools throw descriptive errors with suggestions:
 - **Element not found**: "Use list_outline tool to see available elements"
 - **Texture not found**: "Use list_textures tool to see available textures"
 - **Invalid format**: "Current project is not using a Hytale format"
+- **Headless write refused**: a stale `expected_revision` (another agent changed the file) or a format rule violation; re-read the file and reapply, as [Blockbench headless](../blockbench-headless/SKILL.md) describes
 
 ## Best Practices
 

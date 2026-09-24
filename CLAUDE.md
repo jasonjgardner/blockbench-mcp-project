@@ -4,7 +4,7 @@ This `codex` branch is the Blockbench MCP plugin marketplace. Follow
 [AGENTS.md](AGENTS.md) for repository structure, maintenance rules, and Blockbench
 workflows. The original sample workspace remains on `main`.
 
-The complete plugin lives at `plugins/blockbench-mcp/`; its seven MCP skills are
+The complete plugin lives at `plugins/blockbench-mcp/`; its eight MCP skills are
 maintained directly in `plugins/blockbench-mcp/skills/`. Both marketplace catalogs
 load this checked-in directory. Installation does not require generated files.
 The separate desktop MCP server is maintained in
@@ -25,7 +25,9 @@ claude --plugin-dir ./plugins/blockbench-mcp
 ```
 
 Keep Blockbench desktop running with the desktop MCP plugin loaded. The shared
-connection defaults to `http://localhost:3000/bb-mcp`. Discover tools through the
+connection defaults to `http://localhost:3000/bb-mcp`. The plugin also starts the
+headless `.bbmodel` server through `npx` (`blockbench-headless`, `--root .`), which
+needs no running Blockbench. Discover tools through the
 client and load `blockbench-use` before modifying or exporting model content.
 
 ## Validate and package

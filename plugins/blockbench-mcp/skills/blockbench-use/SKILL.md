@@ -1,12 +1,14 @@
 ---
 name: blockbench-use
-description: "MANDATORY prerequisite — invoke BEFORE any Blockbench MCP tool call that creates, modifies, or exports Blockbench content. Orchestrates the other blockbench-* skills (modeling, texturing, animation, PBR, Hytale, MCP overview). Trigger on: 3D model/texture/animation creation or edits in Blockbench; calls to Blockbench MCP tools; phrases like 'build a Minecraft model', 'paint a texture', 'animate this rig', 'export the model'. Dispatches to the right sub-skill(s), enforces pre-flight checks (project open, format, outline), wraps risky work in checkpoints, and ensures exports close the loop."
+description: "MANDATORY prerequisite — invoke BEFORE any Blockbench MCP tool call that creates, modifies, or exports Blockbench content. Orchestrates the other blockbench-* skills (modeling, texturing, animation, PBR, Hytale, headless, MCP overview). Trigger on: 3D model/texture/animation creation or edits in Blockbench; calls to Blockbench MCP tools (desktop or headless bbmodel_* tools); phrases like 'build a Minecraft model', 'paint a texture', 'animate this rig', 'export the model'. Dispatches to the right sub-skill(s), enforces pre-flight checks (project open, format, outline), wraps risky work in checkpoints, and ensures exports close the loop."
 license: Apache-2.0
 ---
 
 # Blockbench Use
 
 Orchestrator for Blockbench MCP work. Load this **before** touching the 3D scene so the right sub-skills load and the right pre-flight checks run.
+
+Two Blockbench MCP servers can be connected: the **desktop** server (`blockbench`, drives the open Blockbench app) and the **headless** server (`blockbench-headless`, edits `.bbmodel` files on disk with `bbmodel_*` tools). Pick one per task in step 1 below.
 
 Tool names such as `get_capabilities` are semantic short names. Discover the Blockbench MCP tools exposed by the current client and use their actual registered names; server and plugin prefixes can differ between Codex and Claude Code.
 
@@ -16,8 +18,8 @@ Any request that will call a Blockbench MCP tool to create, modify, or export co
 
 Steps, in order:
 
-1. **Classify the request** → pick one or more sub-skills (table below).
-2. **Pre-flight** → confirm a project is open and the format is correct (see "Pre-flight checks").
+1. **Classify the request** → pick the server (desktop or headless, see "Choosing a server") and one or more sub-skills (table below).
+2. **Pre-flight** → desktop: confirm a project is open and the format is correct (see "Pre-flight checks"). Headless: confirm the server answers and the file path is inside its `--root`.
 3. **Load the sub-skill(s)** using the sibling `SKILL.md` links below. Use the current client's skill-loading mechanism when available, or read those files directly; a dedicated Skill tool is not required.
 4. **Checkpoint before risk** → call `save_checkpoint` for multi-step edits that might need rollback.
 5. **Execute** the sub-skill's workflow.
@@ -34,9 +36,22 @@ Pick by primary intent. When the task spans domains, load **all** relevant skill
 | Keyframes, bone rigs, walk/idle/attack | [blockbench-animation](../blockbench-animation/SKILL.md) | bones need geometry first → [blockbench-modeling](../blockbench-modeling/SKILL.md) |
 | `.texture_set.json`, normal/height/MER | [blockbench-pbr-materials](../blockbench-pbr-materials/SKILL.md) | textures not yet drawn → [blockbench-texturing](../blockbench-texturing/SKILL.md) |
 | `.blockymodel`, `.blockyanim`, attachments, quads, stretch, shading modes | [blockbench-hytale](../blockbench-hytale/SKILL.md) | modeling/animation parts → those skills |
+| `.bbmodel` files on disk, parallel agents, validate/render/contact sheet, Bedrock geometry or Java block export, Bedrock particle effects | [blockbench-headless](../blockbench-headless/SKILL.md) | texture/UV/PBR/animation rules → those skills (use headless tool names) |
 | "What tools are available?" / unclear scope | [blockbench-mcp-overview](../blockbench-mcp-overview/SKILL.md) | — |
 
 **Skip this skill** for pure research questions (API docs, "how does Blockbench work?"). Go straight to `blockbench-mcp-overview`.
+
+## Choosing a server
+
+| Situation | Server |
+|---|---|
+| The user is working in an open Blockbench project, or needs brushes, the live timeline, Hytale tools, or editor screenshots | Desktop (`get_capabilities` and friends) |
+| The work is a file in a folder, several agents build in parallel, or Blockbench is not running | Headless (`bbmodel_*`), via [blockbench-headless](../blockbench-headless/SKILL.md) |
+| Both are connected and the task is ambiguous | Ask, or prefer headless for batch and parallel work and desktop for the user's live model |
+
+Never edit one `.bbmodel` through both servers at once: Blockbench does not reload a file changed on disk, and the next save overwrites the headless edit. If the desktop tools are unavailable, say so and offer the headless server instead of guessing.
+
+The desktop pre-flight checks below do not apply to headless work. Headless writes take an `expected_revision` from the last read, and `bbmodel_validate` plus `bbmodel_contact_sheet` replace the outline and screenshot checks.
 
 ## Pre-flight checks
 
@@ -88,6 +103,16 @@ hytale_validate_model      → node count, stretch, shading
 export_model: codec_id="blockymodel"
 ```
 
+### "Build several assets in parallel without opening Blockbench"
+
+```
+blockbench-headless        → one .bbmodel per subagent, each owns its file
+bbmodel_create + bbmodel_edit          → blockout, then detail
+bbmodel_validate + bbmodel_contact_sheet → every pass, look at the images
+bbmodel_export_bedrock_geometry        → deliverable, if the target is Bedrock
+# finally: give the user the web_app link the write tools return
+```
+
 ### "Retexture an existing model"
 
 ```
@@ -121,6 +146,7 @@ Otherwise prefer the specialized skills — they have concrete examples and retu
 
 ## What this skill does NOT cover
 
+- **Installing the desktop plugin or building the headless server itself** → see the plugin README; this skill set only uses them
 - **Blockbench plugin development** (writing `.js` plugins) → outside this MCP skill set
 - **MCP server development** (adding tools to this repo) → not in this skill set
 - **General 3D theory / THREE.js / rendering internals** → out of scope
