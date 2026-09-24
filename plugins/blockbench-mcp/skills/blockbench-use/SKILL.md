@@ -1,45 +1,16 @@
 ---
 name: blockbench-use
-description: "MANDATORY prerequisite — invoke BEFORE any Blockbench MCP tool call that creates, modifies, or exports Blockbench content. Orchestrates the other blockbench-* skills (modeling, texturing, animation, PBR, Hytale, headless, MCP overview). Trigger on: 3D model/texture/animation creation or edits in Blockbench; calls to Blockbench MCP tools (desktop or headless bbmodel_* tools); phrases like 'build a Minecraft model', 'paint a texture', 'animate this rig', 'export the model'. Dispatches to the right sub-skill(s), enforces pre-flight checks (project open, format, outline), wraps risky work in checkpoints, and ensures exports close the loop."
+description: "Load before Blockbench MCP calls that create, modify, or export content, on the desktop server or the headless bbmodel_* server. Discover the active format and tools, route to modeling, UV/texturing, animation, particle, PBR, Hytale, or headless guidance, and verify the requested result."
 license: Apache-2.0
 ---
 
 # Blockbench Use
 
-Orchestrator for Blockbench MCP work. Load this **before** touching the 3D scene so the right sub-skills load and the right pre-flight checks run.
-
-Two Blockbench MCP servers can be connected: the **desktop** server (`blockbench`, drives the open Blockbench app) and the **headless** server (`blockbench-headless`, edits `.bbmodel` files on disk with `bbmodel_*` tools). Pick one per task in step 1 below.
+Load this skill before creating, modifying, or exporting Blockbench content. For capability questions, use [MCP overview](../blockbench-mcp-overview/SKILL.md). Writing Blockbench JavaScript plugins is outside this plugin's skills.
 
 Tool names such as `get_capabilities` are semantic short names. Discover the Blockbench MCP tools exposed by the current client and use their actual registered names; server and plugin prefixes can differ between Codex and Claude Code.
 
-## Rule
-
-Any request that will call a Blockbench MCP tool to create, modify, or export content **must** go through this skill first.
-
-Steps, in order:
-
-1. **Classify the request** → pick the server (desktop or headless, see "Choosing a server") and one or more sub-skills (table below).
-2. **Pre-flight** → desktop: confirm a project is open and the format is correct (see "Pre-flight checks"). Headless: confirm the server answers and the file path is inside its `--root`.
-3. **Load the sub-skill(s)** using the sibling `SKILL.md` links below. Use the current client's skill-loading mechanism when available, or read those files directly; a dedicated Skill tool is not required.
-4. **Checkpoint before risk** → call `save_checkpoint` for multi-step edits that might need rollback.
-5. **Execute** the sub-skill's workflow.
-6. **Close the loop** → screenshot, validate (Hytale), or export if the user asked for a deliverable.
-
-## Skill routing table
-
-Pick by primary intent. When the task spans domains, load **all** relevant skills before starting.
-
-| User intent | Primary skill | Also load when… |
-|---|---|---|
-| Build cubes, meshes, groups, hierarchy | [blockbench-modeling](../blockbench-modeling/SKILL.md) | needs texture → [blockbench-texturing](../blockbench-texturing/SKILL.md) |
-| Paint, fill, draw, brush, layers, UV | [blockbench-texturing](../blockbench-texturing/SKILL.md) | channel-aware (normal/MER) → [blockbench-pbr-materials](../blockbench-pbr-materials/SKILL.md) |
-| Keyframes, bone rigs, walk/idle/attack | [blockbench-animation](../blockbench-animation/SKILL.md) | bones need geometry first → [blockbench-modeling](../blockbench-modeling/SKILL.md) |
-| `.texture_set.json`, normal/height/MER | [blockbench-pbr-materials](../blockbench-pbr-materials/SKILL.md) | textures not yet drawn → [blockbench-texturing](../blockbench-texturing/SKILL.md) |
-| `.blockymodel`, `.blockyanim`, attachments, quads, stretch, shading modes | [blockbench-hytale](../blockbench-hytale/SKILL.md) | modeling/animation parts → those skills |
-| `.bbmodel` files on disk, parallel agents, validate/render/contact sheet, Bedrock geometry or Java block export, Bedrock particle effects | [blockbench-headless](../blockbench-headless/SKILL.md) | texture/UV/PBR/animation rules → those skills (use headless tool names) |
-| "What tools are available?" / unclear scope | [blockbench-mcp-overview](../blockbench-mcp-overview/SKILL.md) | — |
-
-**Skip this skill** for pure research questions (API docs, "how does Blockbench work?"). Go straight to `blockbench-mcp-overview`.
+Two Blockbench MCP servers can be connected: the **desktop** server (`blockbench`, drives the open Blockbench app) and the **headless** server (`blockbench-headless`, edits `.bbmodel` files on disk with `bbmodel_*` tools). See "Choosing a server" below.
 
 ## Choosing a server
 
@@ -51,102 +22,49 @@ Pick by primary intent. When the task spans domains, load **all** relevant skill
 
 Never edit one `.bbmodel` through both servers at once: Blockbench does not reload a file changed on disk, and the next save overwrites the headless edit. If the desktop tools are unavailable, say so and offer the headless server instead of guessing.
 
-The desktop pre-flight checks below do not apply to headless work. Headless writes take an `expected_revision` from the last read, and `bbmodel_validate` plus `bbmodel_contact_sheet` replace the outline and screenshot checks.
+The desktop discovery steps below do not apply to headless work. Headless writes take an `expected_revision` from the last read, and `bbmodel_validate` plus `bbmodel_contact_sheet` replace the outline and screenshot checks.
 
-## Pre-flight checks
+## Discover and Route
 
-1. **Discover the running host.** Call `get_capabilities: include_tools=true`. It works without an open project and returns `project` (or `null`), the active `format`, registered `formats`, and tool enabled states. An enabled tool may still require a compatible format, mode, or selection.
-2. **Choose a supported format.** Use an exact ID from `formats`, then inspect it with `get_capabilities: format_id="<returned ID>"`. This query does not create or switch projects.
-   - Mesh/freeform or Generic Model → normally `free`; require `format.features.meshes=true`. The display name "Generic Model" is not a format ID named `generic`.
-   - Minecraft cube modeling → choose the target's registered format, commonly `bedrock_block`, `java_block`, or `bedrock`. `modded_entity` and `optifine_entity` are cube formats, not freeform mesh choices; inspect the running host's feature flags.
-   - Animation → also require the format's `animation_mode` and suitable rig features.
-   - Hytale → use registered `hytale_character` or `hytale_prop` formats and their matching skill. Their availability depends on the Hytale plugin.
-   - A detailed feature value of `null` means unknown. In the compact list, `supported_features` contains true flags; missing flags are false unless listed in `unknown_features`.
-3. **Open the intended project.** If `project` is `null`, create it with the chosen ID. For an existing project, compare `project.format_id` with the needed format before editing. Do not silently replace the user's project. Call `get_capabilities` without `format_id` afterward to confirm the active project.
-4. **Inspect existing content.** Use `list_outline` + `list_textures`, or targeted `find_elements_by_criteria` / `filter_by_material` queries for large projects. Use `get_mesh_info` for actual mesh vertex and face keys; names such as `top_face` are not generated geometry IDs.
-5. **Hytale project?** Run `hytale_validate_model` at the end; never silently exceed 255 nodes.
+1. Call `get_capabilities: include_tools=true`. It works without an open project and returns host/plugin identity, `project` (or `null`), registered formats, and current tool enabled states. Discover the running bundle rather than assuming every tool described in these source skills is installed.
+2. Preserve the intended project. Use its `project.format_id`; for a new project, choose an exact returned format ID for the user's target. `get_capabilities: format_id="<ID>"` inspects a format without switching projects. Generic Model is normally `free`, not `generic`. Hytale requires its registered Hytale format, not Bedrock. Read [format and delivery guidance](references/formats-and-delivery.md) when choosing a target or preparing an export.
+3. Load relevant domain skills using the available skill-reading mechanism. Load additional guidance when the workflow reaches that domain; a simple edit does not need every skill.
+4. Inspect affected content with `list_outline`, `list_textures`, and targeted queries. Prefer UUIDs when names overlap. Inspect runtime mesh component keys with `get_mesh_info` before component edits.
+5. Check mode/selection when required. `list_modes` and `set_mode` navigate supported editor modes. Enabled tools can still require a compatible format, target, or selection. A feature value of `null` means unknown; compact `supported_features` lists true flags and `unknown_features` lists unknown flags.
 
-## Multi-skill workflow compositions
+| Intent | Guidance |
+|---|---|
+| Cubes, meshes, groups, silhouette, topology | [Modeling](../blockbench-modeling/SKILL.md) |
+| Bedrock poles, cylinders, tubes, rings, and faceted round shapes | [Modeling](../blockbench-modeling/SKILL.md), then [Bedrock primitives](../blockbench-modeling/references/bedrock-primitives.md) |
+| UVs, pixel density, painting, layers | [Texturing](../blockbench-texturing/SKILL.md) |
+| Vanilla/default Minecraft textures, or a named Minecraft block or material (bricks, oak logs, stone bricks) | [Vanilla textures](../blockbench-vanilla-textures/SKILL.md), then [Texturing](../blockbench-texturing/SKILL.md) for UVs |
+| Animated textures, sprite sheets, vertical flipbooks | [Flipbook textures](../blockbench-flipbook-textures/SKILL.md), which requires [GPT Image textures](../blockbench-gpt-image-textures/SKILL.md) for generated artwork |
+| Pivots, keyframes, timing, animation export | [Animation](../blockbench-animation/SKILL.md) |
+| Particle effects, VFX, locators, particle keyframes, Snowstorm/Bedrock particle files | [Particles](../blockbench-particles/SKILL.md), with [Animation](../blockbench-animation/SKILL.md) for the clip |
+| Normal/height/MER materials | [PBR materials](../blockbench-pbr-materials/SKILL.md) |
+| Normal, height or MER maps derived from an existing color texture | [Albedo to PBR](../blockbench-albedo-to-pbr/SKILL.md), then [PBR materials](../blockbench-pbr-materials/SKILL.md) to assign them |
+| Hytale formats, attachments, stretch, visibility | [Hytale](../blockbench-hytale/SKILL.md), then applicable shared domains |
+| `.bbmodel` files on disk, parallel agents, validate/render/contact sheet, Bedrock geometry or Java block export | [Headless](../blockbench-headless/SKILL.md), then the shared domains (use headless tool names) |
+| Armature deformation, display slots, Bedrock material instances | [MCP overview](../blockbench-mcp-overview/SKILL.md) and live schemas |
 
-### "Create a Minecraft character with a walk cycle"
+## Work at the Scale of the Request
 
-```
-blockbench-modeling    → bones + cubes
-blockbench-texturing   → skin texture
-blockbench-animation   → walk cycle keyframes
-# finally:
-capture_screenshot     → preview
-export_model: codec_id="project"  → save .bbmodel
-```
+Before creating a new model or substantially redesigning its geometry, ask where the user's preference lies: **appearance/accuracy**, **performance (fewer elements/faces)**, or **a balance**. Ask for the destination when unknown, including Minecraft edition and block versus entity. Reuse an explicit preference already given; "high quality" or "HD textures" alone does not choose a geometry budget. Continue discovery and inspection while awaiting the answer, but settle the preference before detailed geometry or texture generation. Routine edits that preserve an established design do not need this question again.
 
-### "Make a Bedrock RTX block"
+Use [appearance and performance planning](references/appearance-and-performance.md) to translate the answer into a working budget, choose geometry versus texture/PBR detail, and measure the result. Read it before multiplying repeated parts, optimizing a slow model, or adding hardware details such as screws, bolts, rivets, and other fasteners, which normally belong in albedo and supported PBR channels rather than in geometry. For Bedrock custom blocks using multiple materials or cutout panels, also read [material instances and texture delivery](references/bedrock-material-instances.md).
 
-```
-blockbench-modeling        → single cube
-blockbench-texturing       → color map
-blockbench-pbr-materials   → normal + MER + texture_set.json
-# finally:
-hytale_validate_model      → (skip — not Hytale)
-capture_screenshot
-```
+For a new model, also answer the real-time planning questions in [real-time asset planning](references/real-time-asset-planning.md) and record them in its plan template: target device, shading model, special materials, triangle budget, texel density and texture size, tiled versus atlas UVs, and animation type. Settle the shading model and texel density during blockout, because changing them later invalidates UVs and textures.
 
-### "Build a Hytale character with attachments"
+For a new asset, establish proportions and silhouette before detailed geometry, UVs, texture detail, and final animation. For an existing asset, inspect and change the requested area without rebuilding successful work. Use reference images to identify shape, palette, material and intended viewing distance. Treat Minecraft and Hytale art direction as target-specific guidance, not universal restrictions on every Blockbench format.
 
-```
-blockbench-hytale          → read first: format, node limits, pieces
-blockbench-modeling        → geometry in character format
-blockbench-animation       → optional keyframes (60 FPS)
-# separately per attachment collection:
-blockbench-hytale          → hytale_set_attachment_piece on bones
-# finally:
-hytale_validate_model      → node count, stretch, shading
-export_model: codec_id="blockymodel"
-```
+Before assigning detailed materials or repeating mapped geometry, follow [UV scale and distortion guidance](../blockbench-texturing/references/uv-scale-and-distortion.md). Preserve face proportions and consistent material feature scale across different face sizes; do not stretch the same full atlas swatch over every face by default. Allow deliberate exceptions for uniform materials or designed effects, considering all PBR channels.
 
-### "Build several assets in parallel without opening Blockbench"
+Choose verification that observes the changed behavior: inspect UV values, effective pixels per model unit in both directions, and a mapped checker for UV edits; inspect a texture image and the rendered model after painting; preview several times and the loop seam for animation. A screenshot of the rest pose alone cannot verify a walk cycle. See the delivery reference for format-specific checks.
 
-```
-blockbench-headless        → one .bbmodel per subagent, each owns its file
-bbmodel_create + bbmodel_edit          → blockout, then detail
-bbmodel_validate + bbmodel_contact_sheet → every pass, look at the images
-bbmodel_export_bedrock_geometry        → deliverable, if the target is Bedrock
-# finally: give the user the web_app link the write tools return
-```
+## Recovery and Delivery
 
-### "Retexture an existing model"
-
-```
-# Pre-flight: find everything that uses the old texture
-filter_by_material: texture="old_skin"
-# Load:
-blockbench-texturing       → paint/create replacement
-# Swap references:
-apply_texture per match (from filter_by_material results)
-```
-
-## Safety & efficiency rules (apply in every session)
-
-1. **Checkpoint before risk.** For any workflow of 3+ mutations, call `save_checkpoint: name="<descriptive>"` first. If the result is wrong, `undo: steps=N` back.
-2. **Filter, don't dump.** Prefer `find_elements_by_criteria`, `filter_by_material`, or `select_all_of_type` over `list_outline` when you know the shape of what you want. Large outlines blow context.
-3. **Respect the format.** Use `get_capabilities` for the active format and feature flags; use `hytale_get_format_info` for Hytale-specific details when a Hytale format is active.
-4. **Screenshot after meaningful changes.** `capture_screenshot` confirms the model looks right. Do it at milestones, not every edit.
-5. **Export only when the user asks for a deliverable.** Use `list_export_formats` first to pick the right codec, then `export_model` with a `path` (or content-only if the user just wants to see it).
-6. **Never call `trigger_action: action="undo"` or `"redo"`.** Use the dedicated `undo` / `redo` tools — they return which actions were traversed.
-7. **Name everything.** Descriptive names make `find_elements_by_criteria` and filtering work later.
-
-## When to load `blockbench-mcp-overview`
-
-Load it instead of a specialized skill when:
-
-- The user's intent is ambiguous ("help me with this model")
-- The tool call count will be small (<5) and spans multiple domains
-- The user is asking about capabilities, not executing
-
-Otherwise prefer the specialized skills — they have concrete examples and return shapes.
-
-## What this skill does NOT cover
-
-- **Installing the desktop plugin or building the headless server itself** → see the plugin README; this skill set only uses them
-- **Blockbench plugin development** (writing `.js` plugins) → outside this MCP skill set
-- **MCP server development** (adding tools to this repo) → not in this skill set
-- **General 3D theory / THREE.js / rendering internals** → out of scope
+- Use `save_checkpoint` before exploratory or substantial edits when a history marker helps recovery. It is an undo-history marker, not a saved `.bbmodel` or a snapshot of unrecorded changes. It can clear a redo branch because it adds a history entry. Inspect `get_undo_stack` before recovery; count actual history entries rather than assuming one entry per tool call. Preserve intervening user edits.
+- Use dedicated `undo` / `redo` tools instead of triggering generic undo actions. Direct scripts must create their own correct native undo transaction. A marker cannot make an unrecorded edit reversible.
+- Prefer dedicated tools. If the task requires a feature absent from the live tools, use a supported native UI workflow or explain the specific limitation. Follow existing authorization and repository instructions for `risky_eval`; do not invent an unavailable wrapper or silently substitute a lossy format.
+- For a requested file, discover `list_export_formats`, choose an available codec with compile support, and use `export_model`. Save an editable `.bbmodel` alongside a runtime export when the requested handoff calls for an editable source. A compiled model does not establish that textures, animations, materials, controllers, or engine configuration have also been delivered.
+- Inspect returned export metadata and verify the actual destination/content. Truncated response text is a preview, not a complete file. When target-app access is unavailable, report the validation completed and the remaining integration check accurately.

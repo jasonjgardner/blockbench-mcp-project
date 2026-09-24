@@ -1,7 +1,7 @@
 {
   "name": "blockbench-mcp",
   "version": "1.9.1",
-  "description": "Create, texture, animate, validate, and render Blockbench models through the desktop MCP connection or the headless .bbmodel server, with eight skills.",
+  "description": "Create, texture, animate, validate, and render Blockbench models through the desktop MCP connection or the headless .bbmodel server, with fifteen skills for modeling, textures, PBR, particles, animation, and Hytale.",
   "author": {
     "name": "Jason J. Gardner",
     "url": "https://github.com/jasonjgardner"

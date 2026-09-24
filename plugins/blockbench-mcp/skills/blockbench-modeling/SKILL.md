@@ -10,6 +10,18 @@ Before creating, changing, or exporting project content, read [Blockbench use](.
 
 Build 3D models using cubes and meshes in Blockbench.
 
+## Plan the Shape and Target
+
+Before a new model or substantial geometry redesign, resolve the user's appearance/accuracy, performance, or balanced preference through [Blockbench use](../blockbench-use/SKILL.md). Follow [appearance and performance planning](../blockbench-use/references/appearance-and-performance.md) to set a working element/face budget and choose which details belong in geometry, UV tiles, or PBR. Prototype and count one repeated section before multiplying it; braces, infills, foot plates, and fasteners should not automatically become separate cubes.
+
+Spend faces on silhouette, parallax, and deformation. Delete faces no required view or pose reveals, since real-time meshes need not be watertight. Let parts intersect instead of stitching edge loops around the joint, and float thin detail planes instead of cutting detail in. Keep geometry for recesses and openings whose depth must change as the camera moves. See [real-time asset planning](../blockbench-use/references/real-time-asset-planning.md) sections 4–6 for per-target budgets and face-removal rules.
+
+Use [format and delivery guidance](../blockbench-use/references/formats-and-delivery.md) when selecting a format or exporting. Block out the silhouette and proportions before UV layout and surface detail. Match polygon density to visible shape or deformation needs; automatic subdivision is not a quality step by itself.
+
+For articulated parts, create a hierarchy with pivots at joints and unique, consistent bone names. Group origins are pivots, not translations added to a cube's `from`/`to` coordinates. Place cube bounds in the model's rest coordinate space; the hierarchy applies rotations around those pivots. Mesh vertices are mesh-local, as described below. Check overlapping surfaces for z-fighting and preview moving parts for hidden gaps. See the official [modeling overview](https://blockbench.net/wiki/guides/blockbench-overview-tips/).
+
+When resizing or duplicating textured geometry at a different size, re-evaluate the face UV spans rather than blindly retaining the source rectangle. Follow [UV scale and distortion guidance](../blockbench-texturing/references/uv-scale-and-distortion.md) for side/end proportions, final scale transforms, and shared-material density. Correct mapping within the chosen geometry budget; additional cubes are not the default remedy for texture stretching.
+
 ## Available Tools
 
 ### Cube Tools
@@ -17,6 +29,7 @@ Build 3D models using cubes and meshes in Blockbench.
 |------|---------|
 | `place_cube` | Create cubes with position, size, texture |
 | `modify_cube` | Edit cube properties (position, rotation, UV, etc.) |
+| `get_cube_uv` / `set_cube_uv` | Inspect/edit box or per-face cube UVs; see texturing skill |
 
 ### Mesh Tools
 | Tool | Purpose |
@@ -32,7 +45,10 @@ Build 3D models using cubes and meshes in Blockbench.
 | `delete_mesh_elements` | Remove geometry |
 | `merge_mesh_vertices` | Weld nearby vertices |
 | `create_mesh_face` | Create face from vertices |
-| `knife_tool` | Interactive point-list operation is unsupported through MCP |
+| `knife_tool` | Mesh point-list cutting is unsupported through MCP |
+| `knife_cut_cube` | Headless Knife tool for cubes: split at positions along one axis |
+| `slice_cubes_to_block_grid` | Cut cubes at Bedrock block boundaries and regroup per block |
+| `inspect_block_bounds` | Check cubes/groups against the 30×30×30 oversized block limits |
 
 ### Element Tools
 | Tool | Purpose |
@@ -48,6 +64,8 @@ Build 3D models using cubes and meshes in Blockbench.
 
 ## Cube Modeling
 
+`place_cube` supports untextured blockout in the current source plugin; use `get_capabilities: include_tools=true` to identify the loaded build. A new texture can be created after the silhouette is established. Supplying a texture or group requires a valid existing reference. Use returned UUIDs for later edits; the literal `group="root"` or `add_group`'s `parent="root"` means outliner root. Name a real root bone `rig_root`, or use its UUID, to avoid that reserved target.
+
 ### Place a Cube
 
 ```
@@ -55,7 +73,7 @@ place_cube: elements=[{
   name: "body",
   from: [-4, 0, -2],
   to: [4, 12, 2]
-}], faces=true  # Auto UV
+}], faces=true  # Size-based Auto UV; this does not pack a texture atlas
 ```
 
 ### Place Multiple Cubes
@@ -80,6 +98,10 @@ modify_cube: id="body", rotation=[0, 45, 0], origin=[0, 6, 0]
 place_cube: elements=[{name: "block", from: [0,0,0], to: [16,16,16]}],
   texture="stone", faces=true
 ```
+
+### Bedrock Poles, Cylinders, and Tubes
+
+For round primitives in Bedrock cube models, read [Bedrock primitive construction](references/bedrock-primitives.md). It derives polygon side widths and shared-pivot rotations for solid and hollow shapes, following the Shape Generator plugin's octagon and 16-sided constructions. Choose facets within the appearance/performance budget, distinguish flat-to-flat from corner diameter, and verify overlapping end faces and UV scale. `create_cylinder` creates a mesh; use calculated `place_cube` batches when the target requires cubes.
 
 ## Mesh Modeling
 
@@ -187,15 +209,34 @@ merge_mesh_vertices: mesh_id="panel", threshold=0.1
 
 ### Knife Cut
 
-The host Knife tool depends on interactive pointer state, so `knife_tool` returns an unsupported-operation error for point lists. For a scripted cut, inspect with `get_mesh_info`, construct the intended replacement vertices/faces with `place_mesh`, verify them, then replace the original geometry within the user's requested scope. Use Blockbench's interactive Knife tool when the user prefers to cut manually.
+The mesh Knife tool depends on interactive pointer state, so `knife_tool` returns an unsupported-operation error for point lists. For a scripted mesh cut, inspect with `get_mesh_info`, construct the intended replacement vertices/faces with `place_mesh`, verify them, then replace the original geometry within the user's requested scope. Use Blockbench's interactive Knife tool when the user prefers to cut manually.
+
+Cubes can be cut headlessly. `knife_cut_cube` mirrors Blockbench's Knife on cubes: each cut plane is perpendicular to one axis, the original keeps the lower piece, new pieces get unique names (`pole_2`, `pole_3`), and face UVs are shared proportionally. One undo entry covers all cuts.
+
+```
+knife_cut_cube({ cubes: ["pole"], axis: "y", positions: [16, 32, 48] })
+```
+
+### Oversized Bedrock Blocks
+
+A Bedrock custom block's geometry must fit a 30×30×30 box whose center may sit at most 7 units from the block center, which Blockbench enforces as x/z within ±22 and y within -14…30 (Microsoft's page states the limit more loosely: https://learn.microsoft.com/minecraft/creator/documents/customblockoversized). Larger models must be divided into per-block sections.
+
+1. `inspect_block_bounds` reports model, group, and cube extents against those limits, the block cell each cube sits in, and the grid cut positions that would split it.
+2. `slice_cubes_to_block_grid` cuts every cube where it crosses a block boundary (x/z boundaries at ±8, ±24, …; y at 0, 16, 32, …) and, by default, moves the pieces into one group per block cell (`bottom`, `top`, `right_top_front`, `top2`, …) pivoted at that block's origin. Cubes rotated about the other two axes are left uncut and listed in `skipped_rotated`.
+3. Export each cell group as its own block geometry, or slice manually with `knife_cut_cube` when the automatic grid is not what the model needs.
+
+```
+inspect_block_bounds({})
+slice_cubes_to_block_grid({ regroup: true, group_prefix: "goal_" })
+```
 
 ## Organization
 
 ### Create Group Hierarchy
 
 ```
-add_group: name="root", origin=[0, 0, 0], rotation=[0, 0, 0]
-add_group: name="body", parent="root", origin=[0, 12, 0]
+add_group: name="rig_root", origin=[0, 0, 0], rotation=[0, 0, 0]
+add_group: name="body", parent="rig_root", origin=[0, 12, 0]
 add_group: name="head", parent="body", origin=[0, 24, 0]
 ```
 
@@ -264,26 +305,30 @@ Useful when refactoring textures: find all users before swapping or retiring a t
 
 ### Minecraft Character
 
+This example assumes a cube format with a bone rig and a 32-unit-tall rest pose. It does not prescribe a player-skin template. The cube bounds already include their location in the character; the group pivot does not reposition them.
+
 ```
 # Create hierarchy
-add_group: name="root", origin=[0, 0, 0]
-add_group: name="body", parent="root", origin=[0, 24, 0]
+add_group: name="rig_root", origin=[0, 0, 0]
+add_group: name="body", parent="rig_root", origin=[0, 24, 0]
 add_group: name="head", parent="body", origin=[0, 24, 0]
 add_group: name="arm_left", parent="body", origin=[5, 22, 0]
 add_group: name="arm_right", parent="body", origin=[-5, 22, 0]
-add_group: name="leg_left", parent="root", origin=[2, 12, 0]
-add_group: name="leg_right", parent="root", origin=[-2, 12, 0]
+add_group: name="leg_left", parent="rig_root", origin=[2, 12, 0]
+add_group: name="leg_right", parent="rig_root", origin=[-2, 12, 0]
 
 # Add geometry
-place_cube: elements=[{name: "head", from: [-4, 24, -4], to: [4, 32, 4]}], group="head"
-place_cube: elements=[{name: "body", from: [-4, 12, -2], to: [4, 24, 2]}], group="body"
-place_cube: elements=[{name: "arm", from: [-1, 0, -1], to: [1, 10, 1]}], group="arm_left"
-place_cube: elements=[{name: "arm", from: [-1, 0, -1], to: [1, 10, 1]}], group="arm_right"
-place_cube: elements=[{name: "leg", from: [-2, 0, -2], to: [2, 12, 2]}], group="leg_left"
-place_cube: elements=[{name: "leg", from: [-2, 0, -2], to: [2, 12, 2]}], group="leg_right"
+place_cube: elements=[{name: "head_geo", from: [-4, 24, -4], to: [4, 32, 4]}], group="head"
+place_cube: elements=[{name: "body_geo", from: [-4, 12, -2], to: [4, 24, 2]}], group="body"
+place_cube: elements=[{name: "arm_left_geo", from: [4, 12, -1], to: [6, 22, 1]}], group="arm_left"
+place_cube: elements=[{name: "arm_right_geo", from: [-6, 12, -1], to: [-4, 22, 1]}], group="arm_right"
+place_cube: elements=[{name: "leg_left_geo", from: [0, 0, -2], to: [4, 12, 2]}], group="leg_left"
+place_cube: elements=[{name: "leg_right_geo", from: [-4, 0, -2], to: [0, 12, 2]}], group="leg_right"
 ```
 
 ### Smooth Organic Shape
+
+Only subdivide when the requested shape needs the extra vertices. Subdivision adds topology; it does not by itself smooth the silhouette.
 
 ```js
 await call("create_sphere", {
@@ -303,8 +348,8 @@ The predicate uses local Y, so `> 0` selects the upper half of this sphere even 
 - Use `list_outline` to see current model structure
 - Use `find_elements_by_criteria` for targeted queries instead of filtering `list_outline` results client-side
 - Set group origins at joint/pivot points for animation
-- Use `faces=true` for auto UV mapping on cubes
+- Use `faces=true` for size-based cube UVs; inspect and arrange the UVs before detailed painting
 - Create bone hierarchy before adding geometry
-- Use `duplicate_element` with offset for symmetrical parts
+- `duplicate_element` with an offset creates a translated copy, not a mirrored shape or mirrored UV layout
 - Mesh editing is more flexible but cubes are simpler for Minecraft-style models
-- Before reworking a model, call `save_checkpoint` so you can roll back with `undo`
+- For a substantial rework, a `save_checkpoint` history marker can help recovery; inspect actual history entries before `undo`

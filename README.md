@@ -2,7 +2,7 @@
 
 The `codex` branch is the plugin marketplace for connecting your coding agent to
 Blockbench desktop or to the headless `.bbmodel` server. It includes both MCP
-connections and eight skills for modeling, texturing, animation, PBR materials,
+connections and fifteen skills for modeling, texturing, animation, PBR materials,
 Hytale, and headless file workflows. The complete plugin is
 checked in at [`plugins/blockbench-mcp/`](plugins/blockbench-mcp/README.md), so
 installation does not require a build.
@@ -66,7 +66,7 @@ skills, and troubleshooting. The desktop MCP server is maintained in the separat
 
 ## Maintain or package the plugin
 
-The eight published MCP skills live in `plugins/blockbench-mcp/skills/`. Edit those
+The fifteen published MCP skills live in `plugins/blockbench-mcp/skills/`. Edit those
 files directly; they are the source loaded by both clients. See the
 [skill index](skills/README.md) for the included skills and the separate developer
 skill.

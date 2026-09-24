@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Windows batch templates must keep CRLF so labels and goto work
+*.cmd text eol=crlf

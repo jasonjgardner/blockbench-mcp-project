@@ -4,7 +4,7 @@ This `codex` branch is the Blockbench MCP plugin marketplace. Follow
 [AGENTS.md](AGENTS.md) for repository structure, maintenance rules, and Blockbench
 workflows. The original sample workspace remains on `main`.
 
-The complete plugin lives at `plugins/blockbench-mcp/`; its eight MCP skills are
+The complete plugin lives at `plugins/blockbench-mcp/`; its fifteen MCP skills are
 maintained directly in `plugins/blockbench-mcp/skills/`. Both marketplace catalogs
 load this checked-in directory. Installation does not require generated files.
 The separate desktop MCP server is maintained in

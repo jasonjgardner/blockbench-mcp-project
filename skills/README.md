@@ -1,6 +1,6 @@
 # Blockbench MCP Skills
 
-On the `codex` branch, the eight published MCP skills live in the checked-in
+On the `codex` branch, the fifteen published MCP skills live in the checked-in
 plugin at `plugins/blockbench-mcp/skills/`. Both Codex and Claude Code load those
 same files. The root `skills/` directory retains this index and the separate
 Blockbench developer skill.
@@ -17,10 +17,17 @@ Blockbench developer skill.
 | [blockbench-animation](../plugins/blockbench-mcp/skills/blockbench-animation/SKILL.md) | Rig models and edit animations and keyframes. |
 | [blockbench-hytale](../plugins/blockbench-mcp/skills/blockbench-hytale/SKILL.md) | Use Hytale model, animation, and attachment workflows; requires the Hytale Blockbench plugin. |
 | [blockbench-headless](../plugins/blockbench-mcp/skills/blockbench-headless/SKILL.md) | Build, validate, convert, and render `.bbmodel` files on disk with the headless server; parallel agents, particle effects, web-app links. |
+| [blockbench-particles](../plugins/blockbench-mcp/skills/blockbench-particles/SKILL.md) | Add Bedrock/Snowstorm particle effects, locators, and particle keyframes, and deliver them to a resource pack. |
+| [blockbench-new-model](../plugins/blockbench-mcp/skills/blockbench-new-model/SKILL.md) | Start a new model or scene from an intake form and deliver a render-ready Blender scene with a render script; slash command `/blockbench-new-model`. |
+| [blockbench-vanilla-textures](../plugins/blockbench-mcp/skills/blockbench-vanilla-textures/SKILL.md) | Fetch original Minecraft textures, resolve block IDs to faces, tint, tile, and import vanilla PBR sets. |
+| [blockbench-gpt-image-textures](../plugins/blockbench-mcp/skills/blockbench-gpt-image-textures/SKILL.md) | Generate UV-aware texture atlases, skins, and tiles with GPT Image 2.5 on fal.ai (needs a fal.ai API key). |
+| [blockbench-flipbook-textures](../plugins/blockbench-mcp/skills/blockbench-flipbook-textures/SKILL.md) | Create animated flipbook textures from generated sprite sheets. |
+| [blockbench-albedo-to-pbr](../plugins/blockbench-mcp/skills/blockbench-albedo-to-pbr/SKILL.md) | Derive normal, height, and MER maps from an albedo texture with PyPBR or vgpu. |
+| [blockbench-substance](../plugins/blockbench-mcp/skills/blockbench-substance/SKILL.md) | Optional Adobe Substance 3D Designer, Painter, and Automation Toolkit pipeline (needs Substance installed). |
 
 ## Install
 
-The marketplace installs the plugin and all eight skills without a build.
+The marketplace installs the plugin and all fifteen skills without a build.
 
 For Codex:
 
@@ -54,7 +61,7 @@ agents to discover the registered tools available in the current session.
 
 [blockbench-development](blockbench-development/SKILL.md) covers writing Blockbench
 JavaScript plugins, custom formats, and codecs. Its frontmatter name is
-`blockbench-plugins`. It is maintained separately from the eight MCP usage skills
+`blockbench-plugins`. It is maintained separately from the fifteen MCP usage skills
 and is not included in the marketplace plugin.
 
 The [main branch](https://github.com/jasonjgardner/blockbench-mcp-project/tree/main)

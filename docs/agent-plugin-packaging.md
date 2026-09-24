@@ -1,7 +1,7 @@
 # Packaging the Codex and Claude Code plugin
 
 The `codex` branch contains the marketplace catalogs and a complete plugin at
-[`plugins/blockbench-mcp/`](../plugins/blockbench-mcp/README.md). Its eight MCP
+[`plugins/blockbench-mcp/`](../plugins/blockbench-mcp/README.md). Its fifteen MCP
 skills are checked in under `plugins/blockbench-mcp/skills/` and loaded directly
 by both clients. Marketplace installation requires no build.
 
@@ -72,7 +72,10 @@ The build writes:
 - `artifacts/agent-plugins/blockbench-mcp-<version>.zip.sha256`: the archive checksum.
 
 Only the explicit package file list is copied, including both client manifests,
-the shared MCP configuration, eight skills, licenses, and icon. Generated output is
+the shared MCP configuration, fifteen skills with their references and helper
+scripts, licenses, and icon. Skill files are limited to `.md`, `.py`, `.mjs`,
+`.wgsl`, `.yaml`, and `.cmd`, and every folder under `skills/` must be named in
+`SKILL_NAMES`; the checker fails otherwise. Generated output is
 ignored by Git. CI validates and builds the package for pushes and pull requests
 targeting `codex`, then uploads the ZIP and checksum as an artifact.
 
@@ -84,8 +87,14 @@ plugin or change client profiles.
 
 ## Maintain the plugin
 
-Edit the published MCP skills directly in `plugins/blockbench-mcp/skills/`. Keep
-these as the only source for the eight skills on this branch. The root
+Edit the published MCP skills directly in `plugins/blockbench-mcp/skills/`. The
+`main` branch holds the upstream copies of these skills: sync changes from there
+by three-way merging each `SKILL.md` against the last common version so this
+branch's client-neutral tool-name notes, `license` lines, and headless routing
+survive, and copy new references and scripts across unchanged. Some upstream
+skill folders sit under an ignored `assets/` path on `main`; copy those from a
+working tree, because they are not in `main`'s commits. Keep
+these as the only source for the fifteen skills on this branch. The root
 `skills/README.md` links to them; `skills/blockbench-development/` remains a
 separate developer skill outside the plugin's file list.
 

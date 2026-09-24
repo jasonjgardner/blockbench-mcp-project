@@ -7,7 +7,9 @@ description: "Blockbench plugin/extension development for the 3D modeling tool. 
 
 ## Overview
 
-Blockbench runs on **Electron** (desktop) and as a **web PWA**, using **THREE.js** for 3D rendering and **Vue 2** for reactive UI. Plugins have full access to global APIs within an isolated execution context.
+Blockbench runs on desktop and the web, exposing host APIs and bundled rendering/UI libraries to plugins. Verify the target host version and its types before choosing APIs; plugin variable isolation does not imply unrestricted native-module or filesystem access. Prefer the current [generated API reference](https://web.blockbench.net/docs/) and the target checkout when older wiki examples disagree with the host. Set `variant` and `min_version` to the environments actually verified.
+
+For model format decisions, UV units, rig distinctions and export handoffs, see [format and delivery guidance](../blockbench-use/references/formats-and-delivery.md). A format feature flag advertises host behavior; it does not implement missing validation or runtime serialization in a custom codec.
 
 ## Quick Reference
 
@@ -188,7 +190,7 @@ myPanel.delete();
 
 ## Model Manipulation (with Undo)
 
-**CRITICAL: Always wrap modifications in Undo for user reversibility.**
+Register persistent project edits with native Undo, including every affected aspect. Validate targets and stage asynchronous input before opening a transaction; cancel/restore it on failure. Native actions or painting APIs may own their own transaction, so do not add a competing nested one. Read-only inspection, camera movement and file writes are not equivalent to undoable model mutations. See [Undo documentation](https://blockbench.net/wiki/docs/undo/).
 
 ```javascript
 // Start tracking
@@ -212,6 +214,17 @@ Undo.finishEdit('Move cubes');
 ```
 
 ### Creating Elements
+
+Creation must record the new objects at transaction completion, not only an empty initial list:
+
+```javascript
+Undo.initEdit({ elements: [], outliner: true });
+const createdCube = new Cube({ name: 'body_geo', from: [-4, 0, -2], to: [4, 12, 2] }).init();
+Undo.finishEdit('Add body cube', { elements: [createdCube], outliner: true });
+Canvas.updateAll();
+```
+
+The snippets below illustrate individual host constructors; place them inside the appropriate transaction when changing an existing project. A group's origin is a pivot; parenting does not add that origin as a translation to cube bounds.
 
 ```javascript
 // Cube
@@ -410,7 +423,7 @@ window.myData = {};
 ## Built-in Libraries (Do Not Bundle)
 
 - **THREE** — Three.js 3D rendering
-- **Vue** — Vue 2 reactive UI
+- **Vue** — host-provided reactive UI; match the host's supported component API
 - **JSZip** — ZIP handling
 - **marked** — Markdown parsing
 - **Molang** — Molang expression parser
@@ -441,6 +454,10 @@ npm i --save-dev blockbench-types
 
 ## References
 
-- `references/events.md` — Full event list
-- `references/api.md` — Detailed API reference
-- `references/elements.md` — Element types and properties
+- [references/events.md](references/events.md) — Event reference; confirm version-specific events in the target host
+- [references/api.md](references/api.md) — Local API examples
+- [references/elements.md](references/elements.md) — Element types and properties
+- [Creating a Plugin](https://blockbench.net/wiki/docs/plugin/) — Official registration, lifecycle and development guidance
+- [Generated API reference](https://web.blockbench.net/docs/) — Current host types and comments
+
+Verify a plugin edit with a representative project: expected data/preview, Undo then Redo, and unload/reload cleanup. For formats/codecs, check a representative export and reimport, including UV dimensions, hierarchy, names, texture references and animation behavior where supported. Passing compilation does not exercise native editor state or serialized output.

@@ -9,7 +9,7 @@ MCP server is developed separately in `jasonjgardner/blockbench-mcp-plugin`.
 - `.agents/plugins/marketplace.json`: Codex marketplace catalog.
 - `.claude-plugin/marketplace.json`: Claude Code marketplace catalog.
 - `plugins/blockbench-mcp/`: the complete, checked-in plugin for both clients.
-- `plugins/blockbench-mcp/skills/`: the eight canonical MCP skills on this branch.
+- `plugins/blockbench-mcp/skills/`: the fifteen canonical MCP skills on this branch.
 - `skills/README.md`: skill index; `skills/blockbench-development/` is a separate
   developer skill outside the published plugin.
 - `build/`: Bun validation and optional ZIP packaging, with OS compression tools.
@@ -19,7 +19,7 @@ MCP server is developed separately in `jasonjgardner/blockbench-mcp-plugin`.
 ## Maintaining the plugin
 
 Edit the published skills directly under `plugins/blockbench-mcp/skills/`. Keep
-one tracked source for each of the eight MCP skills on this branch. Both
+one tracked source for each of the fifteen MCP skills on this branch. Both
 marketplace catalogs must point to `./plugins/blockbench-mcp`; installations read
 that directory directly and must not depend on generated artifacts.
 

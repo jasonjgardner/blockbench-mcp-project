@@ -91,7 +91,7 @@ For parallel work, give each subagent its **own file** and tell it not to touch 
 
 ## Particles
 
-Bedrock particle effects (the Snowstorm format) are written next to the model:
+Bedrock particle effects (the Snowstorm format) are written next to the model. [Blockbench particles](../blockbench-particles/SKILL.md) covers effect design and delivery for both servers; this section is the headless tool sequence.
 
 1. `bbmodel_particle_effect` with `action: "create"`, an `identifier`, and either a `preset` or `design` knobs (blocks and seconds). It validates before writing to `<pack_root>/particles/<name>.json`. Pass `model` to get the keyframe path relative to the `.bbmodel`. `action: "update"` changes only the components a knob owns.
 2. `bbmodel_edit` with `add_locator` (where the effect spawns) and `set_particle_keyframe` (animation, time, effect, `file`, `locator`).
@@ -103,6 +103,11 @@ Particles cannot be rendered headlessly. Open the model in Blockbench to preview
 
 - Every write tool returns `web_app`. Send the user `web_app.url`; when it is absent, use `geometry_url` (no texture images) or `launcher.file_url` (a local page for Chrome or Edge). The model travels inside the URL after `#` and is never uploaded. `bbmodel_web_url` makes one for any file.
 - `blockbench_launch` starts the desktop app, optionally opening a file as a new tab. It finds the app from `--blockbench`, `BLOCKBENCH_PATH`, `PATH`, then standard install folders. Pass `wait_for_mcp_ms` to wait until the desktop plugin answers, then continue with the desktop tools. Starting another program needs user approval.
+
+## Related skills
+
+- [Blockbench new model](../blockbench-new-model/SKILL.md) builds a whole subject or scene headlessly and hands it to Blender; its [headless build reference](../blockbench-new-model/references/headless-build.md) has the parallel-agent brief template.
+- [Blockbench vanilla textures](../blockbench-vanilla-textures/SKILL.md), [GPT Image textures](../blockbench-gpt-image-textures/SKILL.md), [flipbook textures](../blockbench-flipbook-textures/SKILL.md), and [albedo to PBR](../blockbench-albedo-to-pbr/SKILL.md) produce the PNGs that `bbmodel_add_texture` embeds.
 
 ## Limits and gotchas
 

@@ -1,5 +1,5 @@
 import { lstat, realpath } from "node:fs/promises";
-import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
+import { dirname, extname, isAbsolute, relative, resolve, sep } from "node:path";
 
 const REPOSITORY_ROOT = resolve(import.meta.dir, "..");
 
@@ -15,7 +15,7 @@ export const PLUGIN_ROOT = resolve(REPOSITORY_ROOT, "plugins", PLUGIN_NAME);
 /** Absolute release directory for the ZIP archive and its SHA-256 sidecar. */
 export const OUTPUT_ROOT = resolve(REPOSITORY_ROOT, "artifacts", "agent-plugins");
 
-/** The eight published skills; each name must match its directory and YAML metadata. */
+/** The fifteen published skills; each name must match its directory and YAML metadata. */
 export const SKILL_NAMES = [
   "blockbench-use",
   "blockbench-mcp-overview",
@@ -25,7 +25,33 @@ export const SKILL_NAMES = [
   "blockbench-animation",
   "blockbench-hytale",
   "blockbench-headless",
+  "blockbench-particles",
+  "blockbench-new-model",
+  "blockbench-vanilla-textures",
+  "blockbench-flipbook-textures",
+  "blockbench-gpt-image-textures",
+  "blockbench-albedo-to-pbr",
+  "blockbench-substance",
 ] as const;
+
+/** File types a skill may ship: instructions, helper scripts, batch templates, shaders, and client metadata. */
+const SKILL_FILE_EXTENSIONS: ReadonlySet<string> = new Set([".md", ".py", ".mjs", ".wgsl", ".yaml", ".cmd"]);
+
+/**
+ * Every file under `skills/`, plugin-relative with forward slashes. Bytecode caches are
+ * skipped; any other file type or any folder not named in {@link SKILL_NAMES} is an error,
+ * so nothing reaches an archive without being reviewed here.
+ */
+function skillFiles(): readonly string[] {
+  const files = [...new Bun.Glob("skills/**/*").scanSync({ cwd: PLUGIN_ROOT, onlyFiles: true })]
+    .map((path) => path.split(sep).join("/"))
+    .filter((path) => !path.split("/").includes("__pycache__"));
+  const unexpected = files.filter((path) => !SKILL_FILE_EXTENSIONS.has(extname(path)));
+  if (unexpected.length > 0) throw new Error(`Unsupported skill file types: ${unexpected.join(", ")}`);
+  const unlisted = [...new Set(files.map((path) => path.split("/")[1] ?? ""))].filter((name) => !(SKILL_NAMES as readonly string[]).includes(name));
+  if (unlisted.length > 0) throw new Error(`Skill folders missing from SKILL_NAMES: ${unlisted.join(", ")}`);
+  return files;
+}
 
 /**
  * Sorted, plugin-relative allowlist for release files. Explicit entries
@@ -41,7 +67,8 @@ export const SOURCE_FILES: readonly string[] = [
   "THIRD_PARTY_NOTICES.md",
   "README.md",
   ...SKILL_NAMES.map((name) => `skills/${name}/SKILL.md`),
-].toSorted();
+  ...skillFiles(),
+].filter((path, index, all) => all.indexOf(path) === index).toSorted();
 
 /**
  * Map an archive destination to its checked-in plugin source. Git installations

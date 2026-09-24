@@ -1,7 +1,7 @@
 {
   "name": "blockbench-mcp",
   "version": "1.9.1",
-  "description": "Create, texture, animate, validate, and render Blockbench models through the desktop MCP connection or the headless .bbmodel server, with eight skills.",
+  "description": "Create, texture, animate, validate, and render Blockbench models through the desktop MCP connection or the headless .bbmodel server, with fifteen skills for modeling, textures, PBR, particles, animation, and Hytale.",
   "author": {
     "name": "Jason J. Gardner",
     "url": "https://github.com/jasonjgardner"
@@ -14,7 +14,7 @@
   "interface": {
     "displayName": "Blockbench MCP",
     "shortDescription": "Model, texture, and animate in Blockbench.",
-    "longDescription": "Use eight skills for modeling, texturing, animation, PBR materials, Hytale, and headless .bbmodel workflows. The desktop connection needs the Blockbench MCP plugin running on this computer at http://localhost:3000/bb-mcp. The headless server edits, validates, and renders .bbmodel files without Blockbench, starts through npx (Node only), and lets several agents work in parallel.",
+    "longDescription": "Use fifteen skills for modeling, texturing, vanilla and AI-generated textures, PBR maps, particles, animation, Hytale, headless .bbmodel workflows, and new-model-to-Blender delivery. The desktop connection needs the Blockbench MCP plugin running on this computer at http://localhost:3000/bb-mcp. The headless server edits, validates, and renders .bbmodel files without Blockbench, starts through npx (Node only), and lets several agents work in parallel.",
     "developerName": "Jason J. Gardner",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],

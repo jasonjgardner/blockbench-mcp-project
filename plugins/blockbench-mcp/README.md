@@ -1,7 +1,7 @@
 # Blockbench MCP for Codex and Claude Code
 
 Connect your coding agent to Blockbench desktop, or to the headless `.bbmodel`
-server, and use eight skills to create, inspect, texture, animate, validate, and
+server, and use fifteen skills to create, inspect, texture, animate, validate, and
 render models. This directory is a complete plugin for both clients, checked into the `codex` marketplace branch. Installation requires
 no build.
 
@@ -132,8 +132,19 @@ For the headless server, try:
 | [blockbench-animation](skills/blockbench-animation/SKILL.md) | Rig models and edit animations and keyframes |
 | [blockbench-hytale](skills/blockbench-hytale/SKILL.md) | Use Hytale model, animation, and attachment workflows |
 | [blockbench-headless](skills/blockbench-headless/SKILL.md) | Build, validate, convert, and render `.bbmodel` files without Blockbench; parallel agents and particle effects |
+| [blockbench-particles](skills/blockbench-particles/SKILL.md) | Add Bedrock/Snowstorm particle effects, locators, and particle keyframes, and deliver them to a resource pack |
+| [blockbench-new-model](skills/blockbench-new-model/SKILL.md) | Start a new model or scene from an intake form and deliver a render-ready Blender scene with a render script; slash command `/blockbench-new-model` |
+| [blockbench-vanilla-textures](skills/blockbench-vanilla-textures/SKILL.md) | Fetch original Minecraft textures, resolve block IDs to faces, tint, tile, and import vanilla PBR sets |
+| [blockbench-gpt-image-textures](skills/blockbench-gpt-image-textures/SKILL.md) | Generate UV-aware texture atlases, skins, and tiles with GPT Image 2.5 on fal.ai (needs a fal.ai API key) |
+| [blockbench-flipbook-textures](skills/blockbench-flipbook-textures/SKILL.md) | Create animated flipbook textures from generated sprite sheets |
+| [blockbench-albedo-to-pbr](skills/blockbench-albedo-to-pbr/SKILL.md) | Derive normal, height, and MER maps from an albedo texture with PyPBR or vgpu |
+| [blockbench-substance](skills/blockbench-substance/SKILL.md) | Optional Adobe Substance 3D Designer, Painter, and Automation Toolkit pipeline (needs Substance installed) |
 
-Hytale workflows additionally require the Hytale plugin in Blockbench. Available
+Hytale workflows additionally require the Hytale plugin in Blockbench. Some skills
+also ship helper scripts and use optional outside tools: Python for PyPBR and
+Substance scripts, Node for the vgpu, vanilla-texture, and GPT Image scripts, a
+fal.ai API key for GPT Image, Adobe Substance 3D for `blockbench-substance`, and
+Blender plus FFmpeg for `blockbench-new-model`. The other skills work without them. Available
 tools and formats depend on the running server; the skills discover them with
 `get_capabilities`. Clients assign different MCP tool prefixes, so examples use
 the short tool names and the skills resolve their callable equivalents.
@@ -160,7 +171,7 @@ duplicate tool listings.
 - `.codex-plugin/plugin.json`: Codex compatibility manifest and display metadata.
 - `.claude-plugin/plugin.json`: Claude Code manifest.
 - `.mcp.json`: Shared desktop HTTP connection and headless stdio server.
-- `skills/`: The eight portable skills, with sibling links kept intact.
+- `skills/`: The fifteen portable skills, with sibling links kept intact.
 - `assets/plugin-logo.png`: Blockbench MCP ID mark, used as the plugin icon and logo.
 
 The skills are maintained directly in this plugin's `skills/` directory on the
