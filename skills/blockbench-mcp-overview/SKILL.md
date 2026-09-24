@@ -25,6 +25,7 @@ When a tool depends on editor state, use `list_modes` and `set_mode: mode_id="<r
 | Cubes, meshes and groups | [Modeling](../blockbench-modeling/SKILL.md) |
 | Cube/mesh UVs, texture images, painting and layers | [Texturing](../blockbench-texturing/SKILL.md) |
 | Group rigs, keyframes, curves and timelines | [Animation](../blockbench-animation/SKILL.md) |
+| Particle effects, locators and particle keyframes (`create_particle_effect`, `add_locator`, `manage_particle_keyframes`, `export_particle_pack`) | [Particles](../blockbench-particles/SKILL.md) |
 | Normal/height/MER channel materials | [PBR materials](../blockbench-pbr-materials/SKILL.md) |
 | Generating normal/height/MER maps from a color texture (PyPBR or vgpu, Depth Anything) | [Albedo to normal](../blockbench-albedo-to-normal/SKILL.md) |
 | Hytale-specific formats, attachments and visibility | [Hytale](../blockbench-hytale/SKILL.md) |

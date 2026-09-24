@@ -11,6 +11,13 @@ Create animations for 3D models using Blockbench MCP tools.
 
 Confirm the format's animation support and intended exporter before animating. Group-based `bone_rigging` and `manage_keyframes` operate on Blockbench groups; native armature bones and vertex weights are a separate rig type with their own tools. Do not assume these group tools animate an `ArmatureBone` merely because it has a similar name. See [MCP overview](../blockbench-mcp-overview/SKILL.md) for discovery and [format/delivery guidance](../blockbench-use/references/formats-and-delivery.md) for target requirements.
 
+Choose the animation type before modeling, because it changes the geometry.
+- Minecraft supports only rigid bone (node) animation. Split each bend into separate parts at the joint, and overlap them so rotation opens no gaps.
+- Skinned deformation needs a Generic Model armature with vertex weights, edge loops at joints, and an exporter that carries the rig.
+- No MCP tools author morph targets. Substitute bones, visibility keyframes, or texture flipbooks.
+
+See [real-time asset planning](../blockbench-use/references/real-time-asset-planning.md) section 10.
+
 Place pivots at joints and build outward through the hierarchy. Block important poses and timing first, then refine weight, contact, anticipation and follow-through as the action requires. Smooth interpolation can overshoot, and mechanical motion can be continuous; choose curves to suit the movement rather than assigning one interpolation to a whole genre. The official [Blockbench overview](https://blockbench.net/wiki/guides/blockbench-overview-tips/) explains hierarchy, pivots and timeline controls.
 
 Animation times are seconds. Timeline FPS controls snapping, not a universal game playback rate or a guarantee that an exporter samples at that rate. Preserve the target format's rules. Inspect start, extrema and in-between poses, and the loop seam for repeating clips; equal endpoint values alone do not guarantee smooth velocity or foot contact.
@@ -58,7 +65,7 @@ Replace `logo_root` with a group returned by `list_outline`. This example turns 
 - `rotation` - [x, y, z] degrees
 - `scale` - [x, y, z] or uniform number
 
-`manage_keyframes.values` accepts either a three-axis array or a number expanded across all three axes. Prefer an explicit array when axes differ, especially for rotations. Numeric tool channels do not imply support for arbitrary Molang, Hytale UV-offset/visibility, or effect channels. Use the corresponding specialized tool or supported native workflow.
+`manage_keyframes.values` accepts either a three-axis array or a number expanded across all three axes. Prefer an explicit array when axes differ, especially for rotations. Numeric tool channels do not imply support for arbitrary Molang, Hytale UV-offset/visibility, or effect channels. Use the corresponding specialized tool or supported native workflow. Particle keyframes, locators and effect files are covered by [Particles](../blockbench-particles/SKILL.md).
 
 ### Interpolation Types
 

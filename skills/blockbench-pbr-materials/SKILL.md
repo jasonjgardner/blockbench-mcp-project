@@ -9,11 +9,20 @@ Use `get_capabilities` to inspect the active project and registered format featu
 
 Preserve the target's material convention. Bedrock MER is not glTF metallic/roughness or an arbitrary ORM packing. A successful Blockbench preview does not prove that a chosen exporter or game supports the material. Align channel maps to the color texture's UV layout and inspect their dimensions before painting. Shared UV and delivery checks are in [format and delivery guidance](../blockbench-use/references/formats-and-delivery.md).
 
+Vanilla Minecraft blocks ship ready-made Bedrock texture sets: a `.texture_set.json` plus `_mers.tga`, and some also include `_normal.tga`. To start from Mojang's own materials, use [vanilla textures](../blockbench-vanilla-textures/SKILL.md) with `--pbr`, then run `import_texture_set` on the downloaded file.
+
 ## Use PBR for Surface Detail
 
 Follow the selected [appearance/performance preference](../blockbench-use/references/appearance-and-performance.md). Use aligned normal or height detail for small fasteners, rivets, welds, grooves, and shallow seat ribs instead of multiplying tiny cubes. Add regional metalness and roughness variation in MER; a shared atlas can represent aluminum, rubber, and painted markings without a separate material for each visible surface. Author valid channel data rather than treating an albedo image as a normal/MER map. To derive normal, height or MER maps from an existing color texture, use [albedo to normal](../blockbench-albedo-to-normal/SKILL.md) and import the results with `create_texture` before assigning them here.
 
 Normal/height shading does not create silhouette thickness, open railing holes, or collision. Preserve geometry where these matter. Confirm the destination's rendering mode actually uses PBR, retain a readable color-only fallback, and account for the memory cost of extra maps. Bedrock's Classic pipeline uses the color layer; normal and heightmap are mutually exclusive texture-set layers. See the [official texture-set specification](https://mojang.github.io/bedrock-samples/Texture%20Sets.html).
+
+Decide the shading model before texturing, because it decides whether PBR maps are worth authoring.
+- Vanilla Java has no PBR slots; shader packs read LabPBR only when the user targets them.
+- Bedrock Classic reads color only; Vibrant Visuals and RTX read texture sets.
+- Stylized low-poly glTF usually skips normal maps.
+
+Keep detail as geometry wherever its depth must change with the camera angle. See [real-time asset planning](../blockbench-use/references/real-time-asset-planning.md) sections 2, 3, and 6.
 
 Use [UV scale and distortion guidance](../blockbench-texturing/references/uv-scale-and-distortion.md) to keep surface relief and material grain at a consistent scale across parts. Align corresponding regions across every channel even when image resolutions differ. UV or atlas edits must preserve those correspondences; verify tangent-space normal orientation after rotation/mirroring. A solid color does not justify stretching a detailed normal or roughness map.
 

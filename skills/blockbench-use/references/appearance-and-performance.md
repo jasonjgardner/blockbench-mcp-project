@@ -14,7 +14,7 @@ Ask a short question such as: "Should this model prioritize appearance/accuracy,
 
 Do not silently choose one from "realistic", "high quality", "HD", or a texture resolution. Once the choice is explicit, do not keep asking on each tool call. If the destination is Minecraft, distinguish Java/Bedrock and block/entity; a Generic Model is not automatically a Minecraft runtime asset.
 
-Gather only context that changes the design: typical viewing distance, expected simultaneous copies, target device/rendering mode, and an existing element/face or frame-time budget. Ask about PBR support when the design would rely on it. If the user has no numeric budget, propose and communicate a concrete working budget based on those constraints; do not invent a universal Minecraft cube limit.
+Gather only context that changes the design: typical viewing distance, expected simultaneous copies, target device/rendering mode, and an existing element/face or frame-time budget. Ask about PBR support when the design would rely on it. If the user has no numeric budget, propose and communicate a concrete working budget based on those constraints; do not invent a universal Minecraft cube limit. [Real-time asset planning](real-time-asset-planning.md) gives per-target answers for device, shading model, and texture limits, plus starting budgets to propose.
 
 ## Budget Before Repetition
 

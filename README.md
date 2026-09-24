@@ -70,6 +70,7 @@ The [`skills/`](./skills) directory ships a set of Agent Skills that teach Claud
 | Skill | Purpose |
 |-------|---------|
 | [`blockbench-use`](./skills/blockbench-use) | **Mandatory orchestrator** — load before any `mcp__blockbench__*` call. Routes to the right sub-skill and enforces pre-flight checks, checkpoints, and exports. |
+| [`blockbench-new-model`](./skills/blockbench-new-model) | `/blockbench-new-model [subject]`: intake form, headless `.bbmodel` build, Blender scene, and a `render.cmd` that renders on every GPU and assembles the video with FFmpeg. |
 | [`blockbench-mcp-overview`](./skills/blockbench-mcp-overview) | High-level tour of the MCP server's tools, resources, and prompts. Start here when onboarding to a new Blockbench project. |
 | [`blockbench-modeling`](./skills/blockbench-modeling) | Build geometry — cubes, meshes, spheres, cylinders — and edit vertices, faces, and groups. |
 | [`blockbench-texturing`](./skills/blockbench-texturing) | Create and paint textures, manage UVs, brushes, layers, fills, gradients, and shapes. |
@@ -86,6 +87,7 @@ The [`skills/`](./skills) directory ships a set of Agent Skills that teach Claud
 ```bash
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-use
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-mcp-overview
+npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-new-model
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-modeling
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-texturing
 npx skills add https://github.com/jasonjgardner/blockbench-mcp-project --skill blockbench-pbr-materials

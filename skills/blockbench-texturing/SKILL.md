@@ -7,11 +7,15 @@ description: Create and paint textures in Blockbench using MCP tools. Use when c
 
 Create and paint textures for 3D models using Blockbench MCP tools.
 
+When the model should use Minecraft's own textures ("vanilla" or "default" textures, or a named block such as bricks or oak planks), use [vanilla textures](../blockbench-vanilla-textures/SKILL.md). It downloads Mojang's originals from the CDN before any painting or generation.
+
 For animated texture sheets, use [flipbook textures](../blockbench-flipbook-textures/SKILL.md): generate artwork through the GPT Image 2.5 texture skill, convert measured sprite cells to a vertical strip, and configure one-frame UV dimensions and playback metadata.
 
 ## Plan UVs Before Texture Detail
 
 Carry forward the user's [appearance/performance preference](../blockbench-use/references/appearance-and-performance.md). For performance or balanced designs, allocate shared UV tiles for repeated braces/infills, seat ribs, seams, and mounting details before adding geometry. Paint small fasteners onto existing supporting faces; add aligned [PBR maps](../blockbench-pbr-materials/SKILL.md) when the target supports them. Reusing UVs alone does not reduce the geometry already present.
+
+Fix texel density before sizing textures. Choose between tiled faces and a unique atlas; for low-poly glTF, collapse face UVs onto a palette atlas. Confirm whether the target accepts non-square or non-power-of-two images: Minecraft does not, while Hytale and Babylon.js do. Minecraft face UVs do not wrap, so repeat a tile by splitting faces. See [real-time asset planning](../blockbench-use/references/real-time-asset-planning.md) sections 7–9.
 
 Inspect the target's box/per-face UV mode and effective UV dimensions before painting. UV units can differ from image pixels; formats with `per_texture_uv_size` use each face's texture dimensions. Preserve deliberate mirrored/repeated UV overlaps, and allocate unique space for asymmetric detail. Preview a checker or directional mark for stretching, orientation and seams. Match pixel density to the user's style and viewing distance; Minecraft pixel-art rules do not apply to every format. See [format and delivery guidance](../blockbench-use/references/formats-and-delivery.md).
 
