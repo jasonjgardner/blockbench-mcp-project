@@ -4,33 +4,10 @@
             "type": "http",
             "url": "http://localhost:3000/bb-mcp"
         },
-        "babylonjs-node-material": {
+        "blockbench-headless": {
+            "type": "stdio",
             "command": "npx",
-            "args": ["-y", "@babylonjs/mcp-servers@9.26.2", "nme"]
-        },
-        "babylonjs-node-geometry": {
-            "command": "npx",
-            "args": ["-y", "@babylonjs/mcp-servers@9.26.2", "nge"]
-        },
-        "babylonjs-node-particle": {
-            "command": "npx",
-            "args": ["-y", "@babylonjs/mcp-servers@9.26.2", "npe"]
-        },
-        "babylonjs-gui": {
-            "command": "npx",
-            "args": ["-y", "@babylonjs/mcp-servers@9.26.2", "gui"]
-        },
-        "babylonjs-flow-graph": {
-            "command": "npx",
-            "args": ["-y", "@babylonjs/mcp-servers@9.26.2", "flow-graph"]
-        },
-        "babylonjs-node-render-graph": {
-            "command": "npx",
-            "args": ["-y", "@babylonjs/mcp-servers@9.26.2", "nrge"]
-        },
-        "babylonjs-smart-filters": {
-            "command": "npx",
-            "args": ["-y", "@babylonjs/mcp-servers@9.26.2", "smart-filters"]
+            "args": ["-y", "github:jasonjgardner/blockbench-mcp-plugin#v1.9.1", "--root", "."]
         }
     }
 }

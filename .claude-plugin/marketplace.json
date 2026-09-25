@@ -1,0 +1,18 @@
+{
+  "name": "blockbench-mcp-project",
+  "owner": {
+    "name": "Jason J. Gardner",
+    "url": "https://github.com/jasonjgardner"
+  },
+  "metadata": {
+    "description": "Blockbench MCP servers, skills, and agents for Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "blockbench-mcp",
+      "source": "./",
+      "description": "Blockbench desktop and headless MCP servers with skills for modeling, texturing, PBR, particles, animation, and Hytale.",
+      "category": "design"
+    }
+  ]
+}

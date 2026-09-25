@@ -1,20 +1,30 @@
 ---
 name: blockbench-physical-accuracy-reviewer
 description: Read-only reviewer that checks whether a Blockbench model of a real-world object could physically exist and work like the real thing. Use PROACTIVELY after building or substantially changing a model of a real object (machine, game, furniture, vehicle, tool, building, creature), before detailed texturing or export. Catches broken mechanisms, wrong layouts, scale mismatches, floating parts, and impossible motion. Pass the object, its variant, and the intended style.
-# MCP tool names assume the Blockbench server is registered as "blockbench"
-# (`claude mcp add blockbench ...`). Rename the mcp__blockbench__ prefix if yours differs.
+# Each Blockbench tool is listed twice: the plugin install exposes it as
+# mcp__plugin_blockbench-mcp_blockbench__*, a server registered by hand as
+# "blockbench" (`claude mcp add blockbench ...`) exposes it as mcp__blockbench__*.
 tools: >-
   Read, Grep, Glob, Bash, WebSearch, WebFetch, ListMcpResourcesTool, ReadMcpResourceTool,
-  mcp__blockbench__get_capabilities, mcp__blockbench__get_project_info,
-  mcp__blockbench__list_outline, mcp__blockbench__find_elements_by_criteria,
-  mcp__blockbench__get_selection, mcp__blockbench__get_mesh_info,
-  mcp__blockbench__inspect_block_bounds, mcp__blockbench__filter_by_material,
-  mcp__blockbench__list_textures, mcp__blockbench__get_texture,
-  mcp__blockbench__list_armatures, mcp__blockbench__get_armature,
-  mcp__blockbench__list_armature_bones, mcp__blockbench__list_views,
-  mcp__blockbench__create_offscreen_view, mcp__blockbench__set_camera_angle,
-  mcp__blockbench__resize_offscreen_view, mcp__blockbench__delete_offscreen_view,
-  mcp__blockbench__capture_screenshot
+  mcp__plugin_blockbench-mcp_blockbench__get_capabilities, mcp__plugin_blockbench-mcp_blockbench__get_project_info,
+  mcp__plugin_blockbench-mcp_blockbench__list_outline, mcp__plugin_blockbench-mcp_blockbench__find_elements_by_criteria,
+  mcp__plugin_blockbench-mcp_blockbench__get_selection, mcp__plugin_blockbench-mcp_blockbench__get_mesh_info,
+  mcp__plugin_blockbench-mcp_blockbench__inspect_block_bounds, mcp__plugin_blockbench-mcp_blockbench__filter_by_material,
+  mcp__plugin_blockbench-mcp_blockbench__list_textures, mcp__plugin_blockbench-mcp_blockbench__get_texture,
+  mcp__plugin_blockbench-mcp_blockbench__list_armatures, mcp__plugin_blockbench-mcp_blockbench__get_armature,
+  mcp__plugin_blockbench-mcp_blockbench__list_armature_bones, mcp__plugin_blockbench-mcp_blockbench__list_views,
+  mcp__plugin_blockbench-mcp_blockbench__create_offscreen_view, mcp__plugin_blockbench-mcp_blockbench__set_camera_angle,
+  mcp__plugin_blockbench-mcp_blockbench__resize_offscreen_view, mcp__plugin_blockbench-mcp_blockbench__delete_offscreen_view,
+  mcp__plugin_blockbench-mcp_blockbench__capture_screenshot, mcp__blockbench__get_capabilities,
+  mcp__blockbench__get_project_info, mcp__blockbench__list_outline,
+  mcp__blockbench__find_elements_by_criteria, mcp__blockbench__get_selection,
+  mcp__blockbench__get_mesh_info, mcp__blockbench__inspect_block_bounds,
+  mcp__blockbench__filter_by_material, mcp__blockbench__list_textures,
+  mcp__blockbench__get_texture, mcp__blockbench__list_armatures,
+  mcp__blockbench__get_armature, mcp__blockbench__list_armature_bones,
+  mcp__blockbench__list_views, mcp__blockbench__create_offscreen_view,
+  mcp__blockbench__set_camera_angle, mcp__blockbench__resize_offscreen_view,
+  mcp__blockbench__delete_offscreen_view, mcp__blockbench__capture_screenshot
 model: opus
 effort: high
 color: orange

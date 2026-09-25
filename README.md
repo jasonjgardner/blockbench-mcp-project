@@ -16,6 +16,24 @@ See the files in the [.vscode](./.vscode) and [.github](./.github) directories.
 
 ### Claude Code
 
+This repository is a Claude Code plugin. Installing it registers the desktop and headless MCP servers from [`.mcp.json`](./.mcp.json), every skill in [`skills/`](./skills), and the reviewer agent in [`agents/`](./agents):
+
+```bash
+claude plugin marketplace add jasonjgardner/blockbench-mcp-project
+claude plugin install blockbench-mcp@blockbench-mcp-project --scope user
+```
+
+From a checkout, validate the plugin and load it for one session:
+
+```bash
+claude plugin validate .claude-plugin/plugin.json
+claude --plugin-dir .
+```
+
+Validation warns that the root `CLAUDE.md` is not loaded as plugin context. That file is for working in this repository, not for plugin users.
+
+To add only the desktop server without the plugin:
+
 ```bash
 claude mcp add blockbench npx mcp-remote http://localhost:3000/bb-mcp
 ```
@@ -52,7 +70,7 @@ The workspace also configures the [Babylon.js MCP servers](https://doc.babylonjs
 | `babylonjs-node-render-graph` | `nrge` | opt-in |
 | `babylonjs-smart-filters` | `smart-filters` | opt-in |
 
-- **Claude Code:** [`.mcp.json`](./.mcp.json) defines every server. [`.claude/settings.json`](./.claude/settings.json) turns the opt-in ones off; move a name from `disabledMcpjsonServers` to `enabledMcpjsonServers` to use it.
+- **Claude Code:** [`.mcp.json`](./.mcp.json) is also the plugin's MCP config, so it lists only the Blockbench servers. Add the Babylon.js servers you need to your local config, for example `claude mcp add babylonjs-node-material -- npx -y @babylonjs/mcp-servers@9.26.2 nme`.
 - **OpenCode:** [`opencode.jsonc`](./opencode.jsonc). Set `enabled` per server.
 - **VS Code:** [`.vscode/mcp.json`](./.vscode/mcp.json) lists all seven. Stop the ones you don't need from the MCP server list, since each one adds 24–29 tools.
 

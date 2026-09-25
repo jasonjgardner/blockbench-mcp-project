@@ -1,0 +1,13 @@
+{
+  "name": "blockbench-mcp",
+  "version": "1.9.1",
+  "description": "Create, texture, animate, validate, and render Blockbench models through the desktop MCP connection or the headless .bbmodel server, with fifteen skills and a physical-accuracy reviewer agent.",
+  "author": {
+    "name": "Jason J. Gardner",
+    "url": "https://github.com/jasonjgardner"
+  },
+  "homepage": "https://github.com/jasonjgardner/blockbench-mcp-project",
+  "repository": "https://github.com/jasonjgardner/blockbench-mcp-project",
+  "license": "Apache-2.0",
+  "keywords": ["blockbench", "mcp", "3d-modeling", "minecraft", "bedrock", "hytale", "animation", "pbr", "headless"]
+}
