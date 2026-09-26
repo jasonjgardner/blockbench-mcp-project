@@ -1,0 +1,51 @@
+{
+    "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+    "notGrouped": "top",
+    "groupings": [
+        {
+            "title": "Core Workflows",
+            "description": "Start here for Blockbench MCP usage, capability discovery, and new rendered scenes.",
+            "skills": [
+                "blockbench-use",
+                "blockbench-mcp-overview",
+                "blockbench-new-model"
+            ]
+        },
+        {
+            "title": "Modeling and Animation",
+            "description": "Build geometry, rigs, animations, particles, and Hytale assets.",
+            "skills": [
+                "blockbench-modeling",
+                "blockbench-animation",
+                "blockbench-particles",
+                "blockbench-hytale"
+            ]
+        },
+        {
+            "title": "Textures and Materials",
+            "description": "Paint, generate, animate, fetch, and prepare textures and PBR material maps.",
+            "skills": [
+                "blockbench-texturing",
+                "blockbench-vanilla-textures",
+                "blockbench-gpt-image-textures",
+                "blockbench-flipbook-textures",
+                "blockbench-pbr-materials",
+                "blockbench-albedo-to-pbr"
+            ]
+        },
+        {
+            "title": "Advanced Pipelines",
+            "description": "Integrate Adobe Substance 3D into advanced Blockbench material workflows.",
+            "skills": [
+                "blockbench-substance"
+            ]
+        },
+        {
+            "title": "Plugin Development",
+            "description": "Create and maintain Blockbench plugins and extensions.",
+            "skills": [
+                "blockbench-development"
+            ]
+        }
+    ]
+}
